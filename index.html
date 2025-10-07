@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF文字起こし - アイスタ</title>
-  <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <!-- LIFF SDK 最新安定版に更新 -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.23.1/sdk.js"></script>
   <style>
     /* ========================================
        CSS Variables - Design System
@@ -1414,7 +1415,7 @@
     // ========================================
     const LIFF_ID = '2008235357-glQqmdnP';
     const WORKER_URL = 'https://aista-pdf-processor.luminalice-reg-tea-sun-red-9b0.workers.dev/upload-pdf';
-    const DEBUG_MODE = true;
+    const DEBUG_MODE = true;  // 本番環境では false に変更してください
     const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10MB
     const MAX_FILES = 5;
 
@@ -1477,37 +1478,50 @@
     // LIFF初期化
     // ========================================
     window.addEventListener('DOMContentLoaded', function() {
-      debugLog('DOMContentLoaded');
+      debugLog('===== LIFF初期化プロセス開始 =====');
+      debugLog('DOMContentLoaded イベント発火');
+      debugLog('現在のURL: ' + window.location.href);
       debugLog('LIFF ID: ' + LIFF_ID);
       debugLog('Device Type: ' + getDeviceType());
-      debugLog('User Agent: ' + navigator.userAgent);
+      debugLog('UserAgent: ' + navigator.userAgent);
       
-      // タイムアウト設定（10秒）
-      const initTimeout = setTimeout(() => {
-        debugLog('⏰ LIFF初期化タイムアウト（10秒経過）');
-        showError('LIFF初期化がタイムアウトしました。ページを再読み込みしてください。');
-      }, 10000);
-      
+      // LIFF SDKの存在確認
       if (typeof liff === 'undefined') {
-        clearTimeout(initTimeout);
         debugLog('❌ LIFF SDKが読み込まれていません');
-        showError('LIFF SDKの読み込みに失敗しました');
+        showError('LIFF SDKの読み込みに失敗しました。ネットワーク接続を確認してください。');
         return;
       }
 
       debugLog('✅ LIFF SDK読み込み成功');
-      debugLog('LIFF初期化開始...');
+      debugLog('LIFF SDKバージョン: ' + (liff.getVersion ? liff.getVersion() : '不明'));
+      
+      // タイムアウト設定（10秒）
+      const initTimeout = setTimeout(() => {
+        debugLog('⚠️ LIFF初期化がタイムアウトしました（10秒経過）');
+        showError('初期化がタイムアウトしました。以下を確認してください：\n\n' +
+                 '1. LIFF IDが正しく設定されているか\n' +
+                 '2. LINE DevelopersでエンドポイントURLが設定されているか\n' +
+                 '3. LIFFアプリが「公開」状態になっているか');
+      }, 10000);
 
+      debugLog('LIFF初期化開始... liff.init()を呼び出します');
+      
+      // LIFF初期化の実行
+      const initStartTime = Date.now();
+      
       liff.init({ 
         liffId: LIFF_ID,
         withLoginOnExternalBrowser: true
       })
       .then(() => {
         clearTimeout(initTimeout);
-        debugLog('✅ LIFF初期化成功');
-        debugLog('isInClient: ' + liff.isInClient());
-        debugLog('isLoggedIn: ' + liff.isLoggedIn());
-        debugLog('OS: ' + liff.getOS());
+        const initTime = Date.now() - initStartTime;
+        debugLog('✅ LIFF初期化成功！（所要時間: ' + initTime + 'ms）');
+        debugLog('LIFF環境情報:');
+        debugLog('- isInClient: ' + liff.isInClient());
+        debugLog('- isLoggedIn: ' + liff.isLoggedIn());
+        debugLog('- OS: ' + (liff.getOS ? liff.getOS() : '不明'));
+        debugLog('- Language: ' + (liff.getLanguage ? liff.getLanguage() : '不明'));
         
         if (!liff.isLoggedIn()) {
           debugLog('未ログイン状態を検出');
@@ -1516,36 +1530,55 @@
             debugLog('PCブラウザを検出 → ログイン画面表示');
             showLoginScreen();
           } else {
-            debugLog('モバイル端末を検出 → 自動ログイン');
+            debugLog('モバイル端末を検出 → 自動ログイン実行');
             liff.login();
           }
-          return Promise.resolve(null);
+          return;
         }
 
-        debugLog('ログイン済み → プロフィール取得');
+        debugLog('ログイン済み → プロフィール取得開始');
         return liff.getProfile();
       })
       .then((profile) => {
         if (!profile) {
-          debugLog('プロフィール未取得（ログイン処理中またはログイン画面表示中）');
+          debugLog('プロフィール取得スキップ（ログイン処理中）');
           return;
         }
         
         currentUserId = profile.userId;
         currentDisplayName = profile.displayName;
         
-        debugLog('✅ User ID: ' + currentUserId);
-        debugLog('✅ Display Name: ' + currentDisplayName);
-        debugLog('アプリUI表示開始');
+        debugLog('✅ プロフィール取得成功');
+        debugLog('- User ID: ' + currentUserId);
+        debugLog('- Display Name: ' + currentDisplayName);
+        debugLog('- Picture URL: ' + (profile.pictureUrl ? '有り' : '無し'));
+        debugLog('===== アプリUI表示開始 =====');
         
         renderApp();
       })
       .catch((err) => {
         clearTimeout(initTimeout);
-        debugLog('❌ LIFF初期化エラー: ' + err.message);
-        debugLog('エラー詳細: ' + JSON.stringify(err));
-        console.error('LIFF Error:', err);
-        showError('LIFF初期化に失敗しました: ' + err.message + '<br><br>ページを再読み込みしてください。');
+        debugLog('❌ LIFF初期化エラー発生');
+        debugLog('エラータイプ: ' + err.name);
+        debugLog('エラーメッセージ: ' + err.message);
+        debugLog('エラーコード: ' + (err.code || '不明'));
+        debugLog('エラースタック: ' + (err.stack || '利用不可'));
+        console.error('LIFF Error Details:', err);
+        
+        // エラーの種類に応じた対処法を表示
+        let errorMessage = 'LIFF初期化に失敗しました。\n\n';
+        
+        if (err.code === 'INVALID_ARGUMENT') {
+          errorMessage += 'LIFF IDが無効です。設定を確認してください。';
+        } else if (err.code === 'FORBIDDEN') {
+          errorMessage += 'このLIFFアプリへのアクセスが拒否されました。';
+        } else if (err.message.includes('network')) {
+          errorMessage += 'ネットワークエラーが発生しました。接続を確認してください。';
+        } else {
+          errorMessage += 'エラー詳細: ' + err.message;
+        }
+        
+        showError(errorMessage);
       });
     });
 
@@ -1729,4 +1762,5 @@
               <div class="file-item-name">📎 ${file.name}</div>
               <div class="file-item-size">📊 ${(file.size / 1024).toFixed(2)} KB</div>
             </div>
-            <button
+            <button class="file-item-remove" onclick="removeFile(${index})">×削除</button>
+          </div>
