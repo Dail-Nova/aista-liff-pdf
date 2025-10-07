@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF文字起こし - アイスタ</title>
-  <!-- LIFF SDK 最新安定版に更新 -->
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.23.1/sdk.js"></script>
+  <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
   <style>
     /* ========================================
        CSS Variables - Design System
@@ -183,667 +182,213 @@
       letter-spacing: 0.05em;
     }
     
-    /* ========================================
-       数式配置（左→右: 5個）画面左側〜中央
-       ======================================== */
-    .math-symbol:nth-child(1) { 
-      top: 15%; 
-      font-size: 120px; 
-      animation: roll-right-1 35s linear infinite; 
-      animation-delay: -10.5s; 
-    }
-    .math-symbol:nth-child(2) { 
-      top: 45%; 
-      font-size: 50px; 
-      animation: roll-right-2 42s linear infinite; 
-      animation-delay: -21s; 
-    }
-    .math-symbol:nth-child(3) { 
-      top: 70%; 
-      font-size: 90px; 
-      animation: roll-right-3 38s linear infinite; 
-      animation-delay: -15.2s; 
-    }
-    .math-symbol:nth-child(4) { 
-      top: 25%; 
-      font-size: 110px; 
-      animation: roll-right-4 40s linear infinite; 
-      animation-delay: -14s; 
-    }
-    .math-symbol:nth-child(5) { 
-      top: 60%; 
-      font-size: 85px; 
-      animation: roll-right-5 36s linear infinite; 
-      animation-delay: -19.8s; 
-    }
+    /* 数式配置（左→右: 5個） */
+    .math-symbol:nth-child(1) { top: 15%; font-size: 120px; animation: roll-right-1 35s linear infinite; animation-delay: -10.5s; }
+    .math-symbol:nth-child(2) { top: 45%; font-size: 50px; animation: roll-right-2 42s linear infinite; animation-delay: -21s; }
+    .math-symbol:nth-child(3) { top: 70%; font-size: 90px; animation: roll-right-3 38s linear infinite; animation-delay: -15.2s; }
+    .math-symbol:nth-child(4) { top: 25%; font-size: 110px; animation: roll-right-4 40s linear infinite; animation-delay: -14s; }
+    .math-symbol:nth-child(5) { top: 60%; font-size: 85px; animation: roll-right-5 36s linear infinite; animation-delay: -19.8s; }
     
-    /* ========================================
-       数式配置（右→左: 5個）画面右側〜中央
-       ======================================== */
-    .math-symbol:nth-child(6) { 
-      top: 20%; 
-      font-size: 55px; 
-      animation: roll-left-1 44s linear infinite; 
-      animation-delay: -24.2s; 
-    }
-    .math-symbol:nth-child(7) { 
-      top: 55%; 
-      font-size: 45px; 
-      animation: roll-left-2 39s linear infinite; 
-      animation-delay: -17.6s; 
-    }
-    .math-symbol:nth-child(8) { 
-      top: 80%; 
-      font-size: 100px; 
-      animation: roll-left-3 41s linear infinite; 
-      animation-delay: -26.7s; 
-    }
-    .math-symbol:nth-child(9) { 
-      top: 35%; 
-      font-size: 95px; 
-      animation: roll-left-4 37s linear infinite; 
-      animation-delay: -14.8s; 
-    }
-    .math-symbol:nth-child(10) { 
-      top: 65%; 
-      font-size: 80px; 
-      animation: roll-left-5 43s linear infinite; 
-      animation-delay: -25.8s; 
-    }
+    /* 数式配置（右→左: 5個） */
+    .math-symbol:nth-child(6) { top: 20%; font-size: 55px; animation: roll-left-1 44s linear infinite; animation-delay: -29.9s; }
+    .math-symbol:nth-child(7) { top: 55%; font-size: 45px; animation: roll-left-2 39s linear infinite; animation-delay: -17.6s; }
+    .math-symbol:nth-child(8) { top: 80%; font-size: 100px; animation: roll-left-3 41s linear infinite; animation-delay: -30.8s; }
+    .math-symbol:nth-child(9) { top: 35%; font-size: 95px; animation: roll-left-4 37s linear infinite; animation-delay: -14.1s; }
+    .math-symbol:nth-child(10) { top: 65%; font-size: 80px; animation: roll-left-5 43s linear infinite; animation-delay: -24.9s; }
     
-    /* ========================================
-       数式配置（上→下: 5個）画面上側〜中央
-       ======================================== */
-    .math-symbol:nth-child(11) { 
-      left: 10%; 
-      font-size: 50px; 
-      animation: roll-down-1 40s linear infinite; 
-      animation-delay: -12s; 
-    }
-    .math-symbol:nth-child(12) { 
-      left: 30%; 
-      font-size: 40px; 
-      animation: roll-down-2 45s linear infinite; 
-      animation-delay: -22.5s; 
-    }
-    .math-symbol:nth-child(13) { 
-      left: 50%; 
-      font-size: 105px; 
-      animation: roll-down-3 38s linear infinite; 
-      animation-delay: -9.5s; 
-    }
-    .math-symbol:nth-child(14) { 
-      left: 70%; 
-      font-size: 115px; 
-      animation: roll-down-4 42s linear infinite; 
-      animation-delay: -23.1s; 
-    }
-    .math-symbol:nth-child(15) { 
-      left: 90%; 
-      font-size: 90px; 
-      animation: roll-down-5 36s linear infinite; 
-      animation-delay: -12.6s; 
-    }
+    /* 数式配置（上→下: 5個） */
+    .math-symbol:nth-child(11) { left: 10%; font-size: 50px; animation: roll-down-1 40s linear infinite; animation-delay: -11.2s; }
+    .math-symbol:nth-child(12) { left: 30%; font-size: 40px; animation: roll-down-2 45s linear infinite; animation-delay: -23.4s; }
+    .math-symbol:nth-child(13) { left: 50%; font-size: 105px; animation: roll-down-3 38s linear infinite; animation-delay: -7.2s; }
+    .math-symbol:nth-child(14) { left: 70%; font-size: 115px; animation: roll-down-4 42s linear infinite; animation-delay: -25.6s; }
+    .math-symbol:nth-child(15) { left: 90%; font-size: 90px; animation: roll-down-5 36s linear infinite; animation-delay: -12.6s; }
     
-    /* ========================================
-       数式配置（下→上: 5個）画面下側〜中央
-       ======================================== */
-    .math-symbol:nth-child(16) { 
-      left: 15%; 
-      font-size: 48px; 
-      animation: roll-up-1 39s linear infinite; 
-      animation-delay: -25.4s; 
-    }
-    .math-symbol:nth-child(17) { 
-      left: 35%; 
-      font-size: 52px; 
-      animation: roll-up-2 44s linear infinite; 
-      animation-delay: -22s; 
-    }
-    .math-symbol:nth-child(18) { 
-      left: 55%; 
-      font-size: 100px; 
-      animation: roll-up-3 37s linear infinite; 
-      animation-delay: -25.9s; 
-    }
-    .math-symbol:nth-child(19) { 
-      left: 75%; 
-      font-size: 95px; 
-      animation: roll-up-4 41s linear infinite; 
-      animation-delay: -18.5s; 
-    }
-    .math-symbol:nth-child(20) { 
-      left: 85%; 
-      font-size: 88px; 
-      animation: roll-up-5 43s linear infinite; 
-      animation-delay: -25.8s; 
-    }
+    /* 数式配置（下→上: 5個） */
+    .math-symbol:nth-child(16) { left: 15%; font-size: 48px; animation: roll-up-1 39s linear infinite; animation-delay: -28.1s; }
+    .math-symbol:nth-child(17) { left: 35%; font-size: 52px; animation: roll-up-2 44s linear infinite; animation-delay: -21.1s; }
+    .math-symbol:nth-child(18) { left: 55%; font-size: 100px; animation: roll-up-3 37s linear infinite; animation-delay: -28.9s; }
+    .math-symbol:nth-child(19) { left: 75%; font-size: 95px; animation: roll-up-4 41s linear infinite; animation-delay: -16.8s; }
+    .math-symbol:nth-child(20) { left: 85%; font-size: 88px; animation: roll-up-5 43s linear infinite; animation-delay: -28s; }
     
-    /* ========================================
-       数式配置（斜め: 7個）全体に均等分散
-       ======================================== */
-    .math-symbol:nth-child(21) { 
-      top: 20%; 
-      left: 15%; 
-      font-size: 50px; 
-      animation: roll-diagonal-br-1 50s linear infinite; 
-      animation-delay: -17.5s; 
-    }
-    .math-symbol:nth-child(22) { 
-      top: 30%; 
-      left: 75%; 
-      font-size: 110px; 
-      animation: roll-diagonal-br-2 48s linear infinite; 
-      animation-delay: -26.4s; 
-    }
-    .math-symbol:nth-child(23) { 
-      top: 70%; 
-      left: 80%; 
-      font-size: 48px; 
-      animation: roll-diagonal-bl-1 52s linear infinite; 
-      animation-delay: -33.8s; 
-    }
-    .math-symbol:nth-child(24) { 
-      top: 80%; 
-      left: 25%; 
-      font-size: 42px; 
-      animation: roll-diagonal-bl-2 46s linear infinite; 
-      animation-delay: -13.8s; 
-    }
-    .math-symbol:nth-child(25) { 
-      top: 50%; 
-      left: 50%; 
-      font-size: 38px; 
-      animation: roll-diagonal-tr-1 54s linear infinite; 
-      animation-delay: -27s; 
-    }
-    .math-symbol:nth-child(26) { 
-      top: 40%; 
-      left: 65%; 
-      font-size: 45px; 
-      animation: roll-diagonal-tr-2 49s linear infinite; 
-      animation-delay: -29.4s; 
-    }
-    .math-symbol:nth-child(27) { 
-      top: 65%; 
-      left: 35%; 
-      font-size: 52px; 
-      animation: roll-diagonal-tl 51s linear infinite; 
-      animation-delay: -20.4s; 
-    }
+    /* 数式配置（斜め: 7個） */
+    .math-symbol:nth-child(21) { top: 20%; left: 15%; font-size: 50px; animation: roll-diagonal-br-1 50s linear infinite; animation-delay: -16s; }
+    .math-symbol:nth-child(22) { top: 30%; left: 75%; font-size: 110px; animation: roll-diagonal-br-2 48s linear infinite; animation-delay: -27.8s; }
+    .math-symbol:nth-child(23) { top: 70%; left: 80%; font-size: 48px; animation: roll-diagonal-bl-1 52s linear infinite; animation-delay: -35.4s; }
+    .math-symbol:nth-child(24) { top: 80%; left: 25%; font-size: 42px; animation: roll-diagonal-bl-2 46s linear infinite; animation-delay: -11s; }
+    .math-symbol:nth-child(25) { top: 50%; left: 50%; font-size: 38px; animation: roll-diagonal-tr-1 54s linear infinite; animation-delay: -24.3s; }
+    .math-symbol:nth-child(26) { top: 40%; left: 65%; font-size: 45px; animation: roll-diagonal-tr-2 49s linear infinite; animation-delay: -34.8s; }
+    .math-symbol:nth-child(27) { top: 65%; left: 35%; font-size: 52px; animation: roll-diagonal-tl 51s linear infinite; animation-delay: -9.7s; }
     
-    /* ========================================
-       アニメーション定義: 左→右（微妙に傾く）
-       ======================================== */
+    /* アニメーション定義: 左→右 */
     @keyframes roll-right-1 {
-      0% { 
-        transform: translate(-120%, -2%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), 2%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, -2%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), 2%); opacity: 0; }
     }
-    
     @keyframes roll-right-2 {
-      0% { 
-        transform: translate(-120%, 1%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), -1%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, 1%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), -1%); opacity: 0; }
     }
-    
     @keyframes roll-right-3 {
-      0% { 
-        transform: translate(-120%, -1%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), 1%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, -1%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), 1%); opacity: 0; }
     }
-    
     @keyframes roll-right-4 {
-      0% { 
-        transform: translate(-120%, 2%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), -2%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, 2%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), -2%); opacity: 0; }
     }
-    
     @keyframes roll-right-5 {
-      0% { 
-        transform: translate(-120%, 0.5%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), -0.5%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, 0.5%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), -0.5%); opacity: 0; }
     }
     
-    /* ========================================
-       アニメーション定義: 右→左（微妙に傾く）
-       ======================================== */
+    /* アニメーション定義: 右→左 */
     @keyframes roll-left-1 {
-      0% { 
-        transform: translate(calc(100vw + 120%), 1.5%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, -1.5%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), 1.5%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, -1.5%); opacity: 0; }
     }
-    
     @keyframes roll-left-2 {
-      0% { 
-        transform: translate(calc(100vw + 120%), -1%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, 1%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), -1%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, 1%); opacity: 0; }
     }
-    
     @keyframes roll-left-3 {
-      0% { 
-        transform: translate(calc(100vw + 120%), 2%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, -2%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), 2%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, -2%); opacity: 0; }
     }
-    
     @keyframes roll-left-4 {
-      0% { 
-        transform: translate(calc(100vw + 120%), -0.5%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, 0.5%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), -0.5%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, 0.5%); opacity: 0; }
     }
-    
     @keyframes roll-left-5 {
-      0% { 
-        transform: translate(calc(100vw + 120%), 1%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, -1%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), 1%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, -1%); opacity: 0; }
     }
     
-    /* ========================================
-       アニメーション定義: 上→下（微妙に傾く）
-       ======================================== */
+    /* アニメーション定義: 上→下 */
     @keyframes roll-down-1 {
-      0% { 
-        transform: translate(-2%, -120%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(2%, calc(100vh + 120%));
-        opacity: 0;
-      }
+      0% { transform: translate(-2%, -120%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(2%, calc(100vh + 120%)); opacity: 0; }
     }
-    
     @keyframes roll-down-2 {
-      0% { 
-        transform: translate(2%, -120%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-2%, calc(100vh + 120%));
-        opacity: 0;
-      }
+      0% { transform: translate(2%, -120%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-2%, calc(100vh + 120%)); opacity: 0; }
     }
-    
     @keyframes roll-down-3 {
-      0% { 
-        transform: translate(-1%, -120%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(1%, calc(100vh + 120%));
-        opacity: 0;
-      }
+      0% { transform: translate(-1%, -120%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(1%, calc(100vh + 120%)); opacity: 0; }
     }
-    
     @keyframes roll-down-4 {
-      0% { 
-        transform: translate(1%, -120%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-1%, calc(100vh + 120%));
-        opacity: 0;
-      }
+      0% { transform: translate(1%, -120%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-1%, calc(100vh + 120%)); opacity: 0; }
     }
-    
     @keyframes roll-down-5 {
-      0% { 
-        transform: translate(0.5%, -120%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-0.5%, calc(100vh + 120%));
-        opacity: 0;
-      }
+      0% { transform: translate(0.5%, -120%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-0.5%, calc(100vh + 120%)); opacity: 0; }
     }
     
-    /* ========================================
-       アニメーション定義: 下→上（微妙に傾く）
-       ======================================== */
+    /* アニメーション定義: 下→上 */
     @keyframes roll-up-1 {
-      0% { 
-        transform: translate(-1%, calc(100vh + 120%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(1%, -120%);
-        opacity: 0;
-      }
+      0% { transform: translate(-1%, calc(100vh + 120%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(1%, -120%); opacity: 0; }
     }
-    
     @keyframes roll-up-2 {
-      0% { 
-        transform: translate(1.5%, calc(100vh + 120%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-1.5%, -120%);
-        opacity: 0;
-      }
+      0% { transform: translate(1.5%, calc(100vh + 120%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-1.5%, -120%); opacity: 0; }
     }
-    
     @keyframes roll-up-3 {
-      0% { 
-        transform: translate(-1.5%, calc(100vh + 120%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(1.5%, -120%);
-        opacity: 0;
-      }
+      0% { transform: translate(-1.5%, calc(100vh + 120%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(1.5%, -120%); opacity: 0; }
     }
-    
     @keyframes roll-up-4 {
-      0% { 
-        transform: translate(2%, calc(100vh + 120%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-2%, -120%);
-        opacity: 0;
-      }
+      0% { transform: translate(2%, calc(100vh + 120%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-2%, -120%); opacity: 0; }
     }
-    
     @keyframes roll-up-5 {
-      0% { 
-        transform: translate(0%, calc(100vh + 120%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(0%, -120%);
-        opacity: 0;
-      }
+      0% { transform: translate(0%, calc(100vh + 120%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(0%, -120%); opacity: 0; }
     }
     
-    /* ========================================
-       アニメーション定義: 斜め（完璧な45度を避ける）
-       ======================================== */
+    /* アニメーション定義: 斜め */
     @keyframes roll-diagonal-br-1 {
-      0% { 
-        transform: translate(-120%, -125%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), calc(100vh + 115%));
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, -125%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), calc(100vh + 115%)); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-br-2 {
-      0% { 
-        transform: translate(-120%, -115%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), calc(100vh + 125%));
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, -115%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), calc(100vh + 125%)); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-bl-1 {
-      0% { 
-        transform: translate(calc(100vw + 120%), -122%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, calc(100vh + 118%));
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), -122%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, calc(100vh + 118%)); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-bl-2 {
-      0% { 
-        transform: translate(calc(100vw + 120%), -118%);
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, calc(100vh + 122%));
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), -118%); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, calc(100vh + 122%)); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-tr-1 {
-      0% { 
-        transform: translate(-120%, calc(100vh + 128%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), -112%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, calc(100vh + 128%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), -112%); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-tr-2 {
-      0% { 
-        transform: translate(-120%, calc(100vh + 112%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(calc(100vw + 120%), -128%);
-        opacity: 0;
-      }
+      0% { transform: translate(-120%, calc(100vh + 112%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(calc(100vw + 120%), -128%); opacity: 0; }
     }
-    
     @keyframes roll-diagonal-tl {
-      0% { 
-        transform: translate(calc(100vw + 120%), calc(100vh + 121%));
-        opacity: 0;
-      }
-      15% { 
-        opacity: 0.20;
-      }
-      85% { 
-        opacity: 0.20;
-      }
-      100% { 
-        transform: translate(-120%, -119%);
-        opacity: 0;
-      }
+      0% { transform: translate(calc(100vw + 120%), calc(100vh + 121%)); opacity: 0; }
+      15% { opacity: 0.20; }
+      85% { opacity: 0.20; }
+      100% { transform: translate(-120%, -119%); opacity: 0; }
     }
     
     @keyframes pulse-glow {
@@ -852,36 +397,19 @@
     }
     
     @keyframes slow-rotate {
-      0% { 
-        transform: rotate(-15deg) scale(1);
-        opacity: 0.8;
-      }
-      50% { 
-        transform: rotate(-5deg) scale(1.1);
-        opacity: 1;
-      }
-      100% { 
-        transform: rotate(-15deg) scale(1);
-        opacity: 0.8;
-      }
+      0% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
+      50% { transform: rotate(-5deg) scale(1.1); opacity: 1; }
+      100% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
     }
     
     .container {
       position: relative;
       z-index: 2;
-    }
-
-    /* ========================================
-       Container
-       ======================================== */
-    .container {
       max-width: 500px;
       margin: var(--space-xl) auto;
     }
 
-    /* ========================================
-       Card
-       ======================================== */
+    /* Card */
     .card {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
@@ -895,9 +423,7 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* ========================================
-       Header
-       ======================================== */
+    /* Header */
     .header {
       text-align: center;
       margin-bottom: var(--space-lg);
@@ -924,9 +450,7 @@
       letter-spacing: 0.03em;
     }
 
-    /* ========================================
-       Device Info
-       ======================================== */
+    /* Device Info */
     .device-info {
       background: var(--color-info-bg);
       border-left: 4px solid var(--color-info);
@@ -937,9 +461,7 @@
       margin-bottom: var(--space-md);
     }
 
-    /* ========================================
-       User Info
-       ======================================== */
+    /* User Info */
     .user-info {
       background: #F9FAFB;
       border: 1px solid #E5E7EB;
@@ -955,9 +477,7 @@
       font-weight: 600;
     }
 
-    /* ========================================
-       Buttons
-       ======================================== */
+    /* Buttons */
     .btn {
       width: 100%;
       padding: 14px 28px;
@@ -1059,16 +579,11 @@
       transform: none !important;
     }
 
-    /* ========================================
-       File Input
-       ======================================== */
     #fileInput {
       display: none;
     }
 
-    /* ========================================
-       File List
-       ======================================== */
+    /* File List */
     .file-list {
       margin-top: var(--space-md);
       display: none;
@@ -1167,9 +682,7 @@
       border-color: #143A7E;
     }
 
-    /* ========================================
-       Progress Bar
-       ======================================== */
+    /* Progress Bar */
     .progress-bar {
       width: 100%;
       height: 8px;
@@ -1189,9 +702,7 @@
       box-shadow: 0 0 10px rgba(26, 75, 160, 0.5);
     }
 
-    /* ========================================
-       Status Messages
-       ======================================== */
+    /* Status Messages */
     .status {
       margin-top: var(--space-md);
       padding: var(--space-sm) var(--space-md);
@@ -1230,9 +741,7 @@
       border-left: 4px solid var(--color-error);
     }
 
-    /* ========================================
-       Loading
-       ======================================== */
+    /* Loading */
     .loading {
       text-align: center;
       padding: var(--space-xl);
@@ -1254,9 +763,7 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* ========================================
-       Login Screen
-       ======================================== */
+    /* Login Screen */
     .login-screen {
       text-align: center;
       padding: var(--space-md);
@@ -1320,9 +827,7 @@
       margin-bottom: var(--space-xs);
     }
 
-    /* ========================================
-       Debug
-       ======================================== */
+    /* Debug */
     .debug {
       margin-top: var(--space-md);
       padding: var(--space-sm);
@@ -1338,9 +843,7 @@
       color: var(--text-secondary);
     }
 
-    /* ========================================
-       Responsive
-       ======================================== */
+    /* Responsive */
     @media (max-width: 480px) {
       body {
         padding: var(--space-sm);
@@ -1415,7 +918,7 @@
     // ========================================
     const LIFF_ID = '2008235357-glQqmdnP';
     const WORKER_URL = 'https://aista-pdf-processor.luminalice-reg-tea-sun-red-9b0.workers.dev/upload-pdf';
-    const DEBUG_MODE = true;  // 本番環境では false に変更してください
+    const DEBUG_MODE = true;
     const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10MB
     const MAX_FILES = 5;
 
@@ -1468,7 +971,6 @@
       }
     }
 
-    // エラーハンドリング
     window.addEventListener('error', function(e) {
       debugLog('❌ エラー発生: ' + e.message);
       showStatus('❌ エラー: ' + e.message, 'error');
@@ -1478,50 +980,25 @@
     // LIFF初期化
     // ========================================
     window.addEventListener('DOMContentLoaded', function() {
-      debugLog('===== LIFF初期化プロセス開始 =====');
-      debugLog('DOMContentLoaded イベント発火');
-      debugLog('現在のURL: ' + window.location.href);
+      debugLog('DOMContentLoaded');
       debugLog('LIFF ID: ' + LIFF_ID);
       debugLog('Device Type: ' + getDeviceType());
-      debugLog('UserAgent: ' + navigator.userAgent);
       
-      // LIFF SDKの存在確認
       if (typeof liff === 'undefined') {
         debugLog('❌ LIFF SDKが読み込まれていません');
-        showError('LIFF SDKの読み込みに失敗しました。ネットワーク接続を確認してください。');
+        showError('LIFF SDKの読み込みに失敗しました');
         return;
       }
 
       debugLog('✅ LIFF SDK読み込み成功');
-      debugLog('LIFF SDKバージョン: ' + (liff.getVersion ? liff.getVersion() : '不明'));
-      
-      // タイムアウト設定（10秒）
-      const initTimeout = setTimeout(() => {
-        debugLog('⚠️ LIFF初期化がタイムアウトしました（10秒経過）');
-        showError('初期化がタイムアウトしました。以下を確認してください：\n\n' +
-                 '1. LIFF IDが正しく設定されているか\n' +
-                 '2. LINE DevelopersでエンドポイントURLが設定されているか\n' +
-                 '3. LIFFアプリが「公開」状態になっているか');
-      }, 10000);
+      debugLog('LIFF初期化開始...');
 
-      debugLog('LIFF初期化開始... liff.init()を呼び出します');
-      
-      // LIFF初期化の実行
-      const initStartTime = Date.now();
-      
       liff.init({ 
         liffId: LIFF_ID,
         withLoginOnExternalBrowser: true
       })
       .then(() => {
-        clearTimeout(initTimeout);
-        const initTime = Date.now() - initStartTime;
-        debugLog('✅ LIFF初期化成功！（所要時間: ' + initTime + 'ms）');
-        debugLog('LIFF環境情報:');
-        debugLog('- isInClient: ' + liff.isInClient());
-        debugLog('- isLoggedIn: ' + liff.isLoggedIn());
-        debugLog('- OS: ' + (liff.getOS ? liff.getOS() : '不明'));
-        debugLog('- Language: ' + (liff.getLanguage ? liff.getLanguage() : '不明'));
+        debugLog('✅ LIFF初期化成功');
         
         if (!liff.isLoggedIn()) {
           debugLog('未ログイン状態を検出');
@@ -1530,55 +1007,34 @@
             debugLog('PCブラウザを検出 → ログイン画面表示');
             showLoginScreen();
           } else {
-            debugLog('モバイル端末を検出 → 自動ログイン実行');
+            debugLog('モバイル端末を検出 → 自動ログイン');
             liff.login();
           }
           return;
         }
 
-        debugLog('ログイン済み → プロフィール取得開始');
+        debugLog('ログイン済み → プロフィール取得');
         return liff.getProfile();
       })
       .then((profile) => {
         if (!profile) {
-          debugLog('プロフィール取得スキップ（ログイン処理中）');
+          debugLog('プロフィール取得失敗（ログイン処理中）');
           return;
         }
         
         currentUserId = profile.userId;
         currentDisplayName = profile.displayName;
         
-        debugLog('✅ プロフィール取得成功');
-        debugLog('- User ID: ' + currentUserId);
-        debugLog('- Display Name: ' + currentDisplayName);
-        debugLog('- Picture URL: ' + (profile.pictureUrl ? '有り' : '無し'));
-        debugLog('===== アプリUI表示開始 =====');
+        debugLog('✅ User ID: ' + currentUserId);
+        debugLog('✅ Display Name: ' + currentDisplayName);
+        debugLog('アプリUI表示開始');
         
         renderApp();
       })
       .catch((err) => {
-        clearTimeout(initTimeout);
-        debugLog('❌ LIFF初期化エラー発生');
-        debugLog('エラータイプ: ' + err.name);
-        debugLog('エラーメッセージ: ' + err.message);
-        debugLog('エラーコード: ' + (err.code || '不明'));
-        debugLog('エラースタック: ' + (err.stack || '利用不可'));
-        console.error('LIFF Error Details:', err);
-        
-        // エラーの種類に応じた対処法を表示
-        let errorMessage = 'LIFF初期化に失敗しました。\n\n';
-        
-        if (err.code === 'INVALID_ARGUMENT') {
-          errorMessage += 'LIFF IDが無効です。設定を確認してください。';
-        } else if (err.code === 'FORBIDDEN') {
-          errorMessage += 'このLIFFアプリへのアクセスが拒否されました。';
-        } else if (err.message.includes('network')) {
-          errorMessage += 'ネットワークエラーが発生しました。接続を確認してください。';
-        } else {
-          errorMessage += 'エラー詳細: ' + err.message;
-        }
-        
-        showError(errorMessage);
+        debugLog('❌ LIFF初期化エラー: ' + err.message);
+        console.error('LIFF Error:', err);
+        showError('LIFF初期化に失敗しました: ' + err.message);
       });
     });
 
@@ -1764,3 +1220,166 @@
             </div>
             <button class="file-item-remove" onclick="removeFile(${index})">×削除</button>
           </div>
+        `).join('')}
+        <button class="file-add-more" onclick="selectFile()">
+          ➕ ファイルを追加
+        </button>
+      `;
+    }
+
+    function removeFile(index) {
+      const fileName = selectedFiles[index].name;
+      selectedFiles.splice(index, 1);
+      debugLog(`削除: ${fileName}`);
+      updateFileList();
+    }
+
+    // ========================================
+    // アップロード
+    // ========================================
+    async function uploadFiles() {
+      if (selectedFiles.length === 0) {
+        showStatus('❌ ファイルが選択されていません', 'error');
+        return;
+      }
+
+      debugLog(`アップロード開始: ${selectedFiles.length}ファイル`);
+      
+      document.getElementById('uploadBtn').disabled = true;
+      document.getElementById('selectBtn').disabled = true;
+      showStatus(`📤 ${selectedFiles.length}件のファイルをアップロード中...`, 'info');
+      showProgress(10);
+
+      try {
+        const filesData = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          showStatus(`🔄 変換中... (${i + 1}/${selectedFiles.length})`, 'info');
+          showProgress(10 + (i / selectedFiles.length) * 40);
+          
+          const base64 = await fileToBase64(file);
+          filesData.push({
+            fileName: file.name,
+            fileData: base64,
+            fileSize: file.size
+          });
+          
+          debugLog(`Base64変換完了: ${file.name}`);
+        }
+
+        showProgress(60);
+        debugLog('全ファイルの変換完了。Workersに送信...');
+
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: currentUserId,
+            displayName: currentDisplayName,
+            files: filesData
+          })
+        });
+
+        showProgress(90);
+        debugLog('レスポンス受信: ' + response.status);
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          debugLog('エラーレスポンス: ' + errorData);
+          throw new Error(`アップロード失敗 (${response.status}): ${errorData}`);
+        }
+
+        const result = await response.json();
+        debugLog('アップロード成功: ' + JSON.stringify(result));
+        showProgress(100);
+        
+        showStatus('✅ 処理中です。結果はLINEトークで確認してください', 'success');
+        
+        setTimeout(() => {
+          debugLog('LINEトークへリダイレクト');
+          redirectToLine();
+        }, 2000);
+
+      } catch (error) {
+        debugLog('❌ エラー: ' + error.message);
+        console.error('Upload Error:', error);
+        showStatus('❌ エラー: ' + error.message, 'error');
+        document.getElementById('uploadBtn').disabled = false;
+        document.getElementById('selectBtn').disabled = false;
+        document.getElementById('progressBar').style.display = 'none';
+      }
+    }
+
+    function redirectToLine() {
+      if (liff.isInClient()) {
+        debugLog('LINEアプリ内ブラウザ: closeWindow()');
+        liff.closeWindow();
+      } else {
+        debugLog('外部ブラウザ: LINE URLへリダイレクト');
+        
+        if (isPC()) {
+          showStatus('✅ 処理完了しました。LINEアプリで結果を確認してください。', 'success');
+          debugLog('PC環境: リダイレクトせず完了メッセージ表示');
+        } else {
+          window.location.href = 'https://line.me/R/ti/p/@568fexuc';
+        }
+      }
+    }
+
+    // ========================================
+    // ユーティリティ
+    // ========================================
+    function showStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('status');
+      if (statusDiv) {
+        statusDiv.style.display = 'block';
+        statusDiv.className = `status status-${type}`;
+        statusDiv.textContent = message;
+      }
+      debugLog('Status: ' + message);
+    }
+
+    function showProgress(percent) {
+      const progressBar = document.getElementById('progressBar');
+      const progressFill = document.getElementById('progressFill');
+      if (progressBar && progressFill) {
+        progressBar.style.display = 'block';
+        progressFill.style.width = percent + '%';
+      }
+      debugLog('Progress: ' + percent + '%');
+    }
+
+    function showError(message) {
+      document.querySelector('.card').innerHTML = `
+        <div class="header">
+          <div class="header-icon">⚠️</div>
+          <h2 class="header-title">エラー</h2>
+          <p class="header-subtitle">LIFF初期化に失敗しました</p>
+        </div>
+        <div class="status status-error" style="display:block;">
+          ${message}
+        </div>
+        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
+      `;
+      updateDebugDisplay();
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = (error) => {
+          debugLog('FileReader Error: ' + error);
+          reject(error);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
