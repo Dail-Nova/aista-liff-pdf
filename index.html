@@ -1313,17 +1313,51 @@
     }
 
     function redirectToLine() {
-      if (liff.isInClient()) {
-        debugLog('LINEアプリ内ブラウザ: closeWindow()');
-        liff.closeWindow();
+      debugLog('リダイレクト処理開始');
+      
+      // LIFF環境チェック（より確実な判定）
+      const isInLiffBrowser = liff.isInClient();
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const isMobile = isIOS || isAndroid;
+      
+      debugLog(`環境判定: isInClient=${isInLiffBrowser}, iOS=${isIOS}, Android=${isAndroid}, Mobile=${isMobile}`);
+      
+      if (isInLiffBrowser) {
+        // LINEアプリ内ブラウザ → 画面を閉じる
+        debugLog('✅ LINEアプリ内ブラウザを検出 → closeWindow()実行');
+        try {
+          liff.closeWindow();
+          debugLog('closeWindow()実行成功');
+        } catch (error) {
+          debugLog('❌ closeWindow()エラー: ' + error.message);
+          // フォールバック: 完了メッセージ表示
+          showStatus('✅ 処理完了しました。このウィンドウを閉じてください。', 'success');
+        }
       } else {
-        debugLog('外部ブラウザ: LINE URLへリダイレクト');
+        // 外部ブラウザ
+        debugLog('外部ブラウザを検出');
         
-        if (isPC()) {
-          showStatus('✅ 処理完了しました。LINEアプリで結果を確認してください。', 'success');
-          debugLog('PC環境: リダイレクトせず完了メッセージ表示');
+        if (isMobile) {
+          // スマホ外部ブラウザ → 完了メッセージのみ（リダイレクトなし）
+          debugLog('スマホ外部ブラウザ → 完了メッセージ表示');
+          showStatus('✅ 処理完了しました。\n\nLINEアプリを開いて結果を確認してください。', 'success');
+          
+          // ボタンを再度有効化
+          const uploadBtn = document.getElementById('uploadBtn');
+          const selectBtn = document.getElementById('selectBtn');
+          if (uploadBtn) uploadBtn.disabled = false;
+          if (selectBtn) selectBtn.disabled = false;
         } else {
-          window.location.href = 'https://line.me/R/ti/p/@568fexuc';
+          // PC外部ブラウザ → 完了メッセージのみ
+          debugLog('PC外部ブラウザ → 完了メッセージ表示');
+          showStatus('✅ 処理完了しました。\n\nLINEアプリで結果を確認してください。', 'success');
+          
+          // ボタンを再度有効化
+          const uploadBtn = document.getElementById('uploadBtn');
+          const selectBtn = document.getElementById('selectBtn');
+          if (uploadBtn) uploadBtn.disabled = false;
+          if (selectBtn) selectBtn.disabled = false;
         }
       }
     }
