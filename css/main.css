@@ -1,0 +1,468 @@
+/* ========================================
+   アイスタ LIFF PDF文字起こし機能
+   機能UI専用CSS
+   
+   Layer 100+: #app-root（機能レイヤー）
+   ======================================== */
+
+/* ========================================
+   CSS Variables（色定義）
+   ======================================== */
+:root {
+  /* メインカラー */
+  --color-primary: #1A4BA0;
+  --color-primary-dark: #143A7E;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  
+  /* テキストカラー */
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-light: #9CA3AF;
+  
+  /* 背景カラー */
+  --bg-white: #FFFFFF;
+  --bg-gray-50: #F9FAFB;
+  --bg-gray-100: #F3F4F6;
+  --bg-gray-200: #E5E7EB;
+  
+  /* ボーダーカラー */
+  --border-gray: #E5E7EB;
+  --border-gray-light: #F3F4F6;
+}
+
+/* ========================================
+   #app-root（機能レイヤーのルート）
+   ======================================== */
+#app-root {
+  position: relative;
+  z-index: 100;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ========================================
+   コンテナ
+   ======================================== */
+.container {
+  max-width: 500px;
+  margin: 48px auto;
+}
+
+/* ========================================
+   カード
+   ======================================== */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 10px 30px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   ヘッダー
+   ======================================== */
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ========================================
+   デバイス情報
+   ======================================== */
+.device-info {
+  background: var(--bg-gray-50);
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ========================================
+   ユーザー情報
+   ======================================== */
+.user-info {
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.user-info strong {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.user-info small {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   ファイル入力（非表示）
+   ======================================== */
+#fileInput {
+  display: none;
+}
+
+/* ========================================
+   ボタン（共通）
+   ======================================== */
+.btn {
+  width: 100%;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ボタン - プライマリ */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(26, 75, 160, 0.3);
+  margin-bottom: 16px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(26, 75, 160, 0.4);
+}
+
+/* ボタン - サクセス */
+.btn-success {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  margin-bottom: 16px;
+  display: none;
+}
+
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* ========================================
+   ファイルリスト
+   ======================================== */
+.file-list {
+  display: none;
+  background: var(--bg-gray-50);
+  border: 1px solid var(--border-gray);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.file-list-header {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.file-list-header strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.file-list-header small {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ファイルアイテム */
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.file-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(26, 75, 160, 0.1);
+}
+
+.file-item-info {
+  flex: 1;
+}
+
+.file-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.file-item-size {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.file-item-remove {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.file-item-remove:hover {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* ファイル追加ボタン */
+.file-add-more {
+  width: 100%;
+  background: white;
+  border: 2px dashed var(--border-gray);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-add-more:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-gray-50);
+}
+
+/* ========================================
+   プログレスバー
+   ======================================== */
+.progress-bar {
+  display: none;
+  width: 100%;
+  height: 8px;
+  background: var(--bg-gray-200);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #3B82F6 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* ========================================
+   ステータスメッセージ
+   ======================================== */
+.status {
+  display: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.status-info {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border-left: 4px solid #3B82F6;
+}
+
+.status-success {
+  background: #D1FAE5;
+  color: #065F46;
+  border-left: 4px solid #10B981;
+}
+
+.status-error {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-left: 4px solid #EF4444;
+}
+
+/* ========================================
+   ローディング
+   ======================================== */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border: 4px solid var(--bg-gray-200);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   デバッグ表示
+   ======================================== */
+.debug {
+  background: #1F2937;
+  color: #10B981;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.debug::-webkit-scrollbar {
+  width: 8px;
+}
+
+.debug::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.debug::-webkit-scrollbar-thumb {
+  background: #4B5563;
+  border-radius: 4px;
+}
+
+.debug::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}
+
+/* ========================================
+   レスポンシブ対応
+   ======================================== */
+@media (max-width: 640px) {
+  #app-root {
+    padding: 16px;
+  }
+  
+  .container {
+    margin: 24px auto;
+  }
+  
+  .card {
+    padding: 24px;
+  }
+  
+  .header-icon {
+    font-size: 40px;
+  }
+  
+  .header-title {
+    font-size: 20px;
+  }
+  
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .file-item-remove {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* ========================================
+   アクセシビリティ
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* フォーカス表示 */
+.btn:focus-visible,
+.file-item-remove:focus-visible,
+.file-add-more:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
