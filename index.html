@@ -37,6 +37,16 @@
       margin-bottom: 30px;
       font-size: 14px;
     }
+    .debug-mode-indicator {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+      color: #856404;
+    }
     .user-info {
       background: #f5f5f5;
       padding: 15px;
@@ -160,6 +170,64 @@
       max-height: 200px;
       overflow-y: auto;
     }
+    .login-screen {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .login-screen h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+    .login-screen p {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #06C755;
+      color: white;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+    }
+    .login-btn:hover {
+      background: #05B04B;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(6, 199, 85, 0.4);
+    }
+    .login-hint {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      color: #666;
+      font-size: 14px;
+    }
+    .login-hint strong {
+      display: block;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .device-info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1976d2;
+    }
   </style>
 </head>
 <body>
@@ -176,14 +244,32 @@
     // ========================================
     const LIFF_ID = '2008235357-glQqmdnP';
     const WORKER_URL = 'https://aista-pdf-processor.luminalice-reg-tea-sun-red-9b0.workers.dev/upload-pdf';
-    const DEBUG_MODE = true;  // デバッグモード（本番ではfalseに）
+    const DEBUG_MODE = true;
     const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10MB
-    const MAX_FILES = 5;  // 最大5ファイル
+    const MAX_FILES = 5;
 
     let currentUserId = null;
     let currentDisplayName = null;
     let debugLogs = [];
-    let selectedFiles = [];  // 選択されたファイルの配列
+    let selectedFiles = [];
+
+    // ========================================
+    // デバイス判定
+    // ========================================
+    function isPC() {
+      const ua = navigator.userAgent;
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+      const isTablet = /iPad|Android/i.test(ua) && !/Mobile/i.test(ua);
+      return !isMobile || isTablet;
+    }
+
+    function getDeviceType() {
+      if (/iPhone|iPod/i.test(navigator.userAgent)) return 'iPhone';
+      if (/iPad/i.test(navigator.userAgent)) return 'iPad';
+      if (/Android/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent)) return 'Android Phone';
+      if (/Android/i.test(navigator.userAgent)) return 'Android Tablet';
+      return 'PC';
+    }
 
     // デバッグログ関数
     function debugLog(message) {
@@ -210,20 +296,19 @@
       }
     }
 
-    // ========================================
     // エラーハンドリング
-    // ========================================
     window.addEventListener('error', function(e) {
       debugLog('エラー発生: ' + e.message);
       showStatus('❌ エラー: ' + e.message, 'error');
     });
 
     // ========================================
-    // LIFF初期化（DOMContentLoaded後に実行）
+    // LIFF初期化（PC対応版）
     // ========================================
     window.addEventListener('DOMContentLoaded', function() {
       debugLog('DOMContentLoaded');
       debugLog('LIFF ID: ' + LIFF_ID);
+      debugLog('Device Type: ' + getDeviceType());
       
       // LIFFが読み込まれているか確認
       if (typeof liff === 'undefined') {
@@ -236,15 +321,24 @@
       debugLog('LIFF初期化開始...');
 
       liff.init({ 
-        liffId: LIFF_ID 
+        liffId: LIFF_ID,
+        withLoginOnExternalBrowser: true  // 🆕 PC外部ブラウザ対応
       })
       .then(() => {
         debugLog('✅ LIFF初期化成功');
         
         // ログイン確認
         if (!liff.isLoggedIn()) {
-          debugLog('未ログイン → ログイン画面へ');
-          liff.login();
+          debugLog('未ログイン状態を検出');
+          
+          // PC判定
+          if (isPC()) {
+            debugLog('PCブラウザを検出 → ログイン画面表示');
+            showLoginScreen();
+          } else {
+            debugLog('モバイル端末を検出 → 自動ログイン');
+            liff.login();
+          }
           return;
         }
 
@@ -260,8 +354,8 @@
         currentUserId = profile.userId;
         currentDisplayName = profile.displayName;
         
-        debugLog('User ID: ' + currentUserId);
-        debugLog('Display Name: ' + currentDisplayName);
+        debugLog('✅ User ID: ' + currentUserId);
+        debugLog('✅ Display Name: ' + currentDisplayName);
         debugLog('アプリUI表示開始');
         
         renderApp();
@@ -273,9 +367,71 @@
       });
     });
 
-    // ========================================
+    // ログイン画面表示
+    function showLoginScreen() {
+      const deviceType = getDeviceType();
+      
+      document.getElementById('app').innerHTML = `
+        <div class="login-screen">
+          <h2>📱 LINEでログイン</h2>
+          <p>
+            このサービスを利用するには<br>
+            LINEアカウントでのログインが必要です
+          </p>
+          
+          <button class="login-btn" onclick="doLogin()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+            </svg>
+            LINEでログイン
+          </button>
+          
+          <div class="login-hint">
+            <strong>💡 ログイン方法</strong>
+            ${deviceType === 'PC' ? `
+              <p style="margin: 10px 0;">
+                <strong>方法1: QRコード</strong><br>
+                スマートフォンのLINEアプリで<br>
+                QRコードを読み取ってログイン
+              </p>
+              <p style="margin: 10px 0;">
+                <strong>方法2: メール/パスワード</strong><br>
+                LINEに登録したメールアドレスと<br>
+                パスワードでログイン
+              </p>
+            ` : `
+              <p>
+                LINEアプリでログインします
+              </p>
+            `}
+          </div>
+          
+          <div class="device-info">
+            ℹ️ 検出デバイス: ${deviceType}<br>
+            次回以降は自動ログインされます
+          </div>
+          
+          ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
+        </div>
+      `;
+      
+      updateDebugDisplay();
+    }
+
+    // ログイン実行
+    function doLogin() {
+      debugLog('ログインボタンクリック');
+      debugLog('liff.login() 実行開始...');
+      
+      try {
+        liff.login();
+      } catch (error) {
+        debugLog('❌ ログインエラー: ' + error.message);
+        showStatus('ログインに失敗しました: ' + error.message, 'error');
+      }
+    }
+
     // エラー表示
-    // ========================================
     function showError(message) {
       document.getElementById('app').innerHTML = `
         <h2>⚠️ エラー</h2>
@@ -283,18 +439,24 @@
         <div class="status-error" style="display:block; margin-top:20px;">
           ${message}
         </div>
-        <div class="debug" id="debugInfo"></div>
+        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
       `;
       updateDebugDisplay();
     }
 
-    // ========================================
     // アプリUI表示
-    // ========================================
     function renderApp() {
+      const deviceInfo = isPC() ? `
+        <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; color: #1976d2;">
+          💻 PCブラウザで動作中 | デバイス: ${getDeviceType()}
+        </div>
+      ` : '';
+      
       document.getElementById('app').innerHTML = `
         <h2>📄 PDF文字起こし</h2>
         <p class="subtitle">PDFをアップロードして内容を要約します（最大5ファイル）</p>
+        
+        ${deviceInfo}
         
         <div class="user-info">
           👤 <strong>${currentDisplayName}</strong> さん<br>
@@ -326,45 +488,36 @@
       document.getElementById('uploadBtn').addEventListener('click', uploadFiles);
       
       updateDebugDisplay();
-      debugLog('UI表示完了');
+      debugLog('✅ UI表示完了');
     }
 
-    // ========================================
     // ファイル選択
-    // ========================================
     function selectFile() {
       debugLog('ファイル選択ボタンクリック');
       document.getElementById('fileInput').click();
     }
 
-    // ========================================
     // ファイル選択時の処理
-    // ========================================
     function handleFileSelect(event) {
       const files = Array.from(event.target.files);
       debugLog(`${files.length}個のファイルが選択されました`);
 
-      // ファイル数チェック
       if (selectedFiles.length + files.length > MAX_FILES) {
         showStatus(`❌ 最大${MAX_FILES}ファイルまでです`, 'error');
         return;
       }
 
-      // 各ファイルをチェック
       for (const file of files) {
-        // PDFチェック
         if (file.type !== 'application/pdf') {
           showStatus(`❌ ${file.name}はPDFファイルではありません`, 'error');
           continue;
         }
 
-        // サイズチェック
         if (file.size > MAX_FILE_SIZE) {
           showStatus(`❌ ${file.name}は10MBを超えています`, 'error');
           continue;
         }
 
-        // 重複チェック
         if (selectedFiles.some(f => f.name === file.name)) {
           showStatus(`⚠️ ${file.name}は既に追加されています`, 'error');
           continue;
@@ -375,12 +528,10 @@
       }
 
       updateFileList();
-      event.target.value = ''; // 入力をリセット
+      event.target.value = '';
     }
 
-    // ========================================
     // ファイルリスト表示更新
-    // ========================================
     function updateFileList() {
       const fileListDiv = document.getElementById('fileList');
       const uploadBtn = document.getElementById('uploadBtn');
@@ -420,9 +571,7 @@
       `;
     }
 
-    // ========================================
     // ファイル削除
-    // ========================================
     function removeFile(index) {
       const fileName = selectedFiles[index].name;
       selectedFiles.splice(index, 1);
@@ -430,9 +579,7 @@
       updateFileList();
     }
 
-    // ========================================
     // アップロード実行
-    // ========================================
     async function uploadFiles() {
       if (selectedFiles.length === 0) {
         showStatus('❌ ファイルが選択されていません', 'error');
@@ -441,14 +588,12 @@
 
       debugLog(`アップロード開始: ${selectedFiles.length}ファイル`);
       
-      // ボタン無効化
       document.getElementById('uploadBtn').disabled = true;
       document.getElementById('selectBtn').disabled = true;
       showStatus(`📤 ${selectedFiles.length}件のファイルをアップロード中...`, 'info');
       showProgress(10);
 
       try {
-        // 各ファイルをBase64に変換
         const filesData = [];
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
@@ -468,7 +613,6 @@
         showProgress(60);
         debugLog('全ファイルの変換完了。Workersに送信...');
 
-        // Workersに送信
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: {
@@ -496,7 +640,6 @@
         
         showStatus('✅ 処理中です。結果はLINEトークで確認してください', 'success');
         
-        // LINEトークへリダイレクト
         setTimeout(() => {
           debugLog('LINEトークへリダイレクト');
           redirectToLine();
@@ -512,24 +655,26 @@
       }
     }
 
-    // ========================================
     // LINEトークへリダイレクト
-    // ========================================
     function redirectToLine() {
       if (liff.isInClient()) {
-        // LINEアプリ内 → ウィンドウを閉じる
         debugLog('LINEアプリ内ブラウザ: closeWindow()');
         liff.closeWindow();
       } else {
-        // 外部ブラウザ → LINEトークを開く
         debugLog('外部ブラウザ: LINE URLへリダイレクト');
-        window.location.href = 'https://line.me/R/ti/p/@568fexuc';
+        
+        if (isPC()) {
+          // PCの場合は完了メッセージを表示
+          showStatus('✅ 処理完了しました。LINEアプリで結果を確認してください。', 'success');
+          debugLog('PC環境: リダイレクトせず完了メッセージ表示');
+        } else {
+          // スマホの場合はLINEアプリへ
+          window.location.href = 'https://line.me/R/ti/p/@568fexuc';
+        }
       }
     }
 
-    // ========================================
     // ユーティリティ関数
-    // ========================================
     function showStatus(message, type = 'info') {
       const statusDiv = document.getElementById('status');
       if (statusDiv) {
