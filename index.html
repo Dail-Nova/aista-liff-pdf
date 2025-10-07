@@ -172,15 +172,18 @@
 
   <script>
     // ========================================
-    // 設定値（必ず変更してください）
+    // 設定値
     // ========================================
-    const LIFF_ID = '2008235357-glQqmdnP';  // ← ここを変更！
-    const WORKER_URL = 'https://aista-pdf-processor.luminalice-reg-tea-sun-red-9b0.workers.dev/upload-pdf';  // ← 後で変更！
+    const LIFF_ID = '2008235357-glQqmdnP';
+    const WORKER_URL = 'https://aista-pdf-processor.luminalice-reg-tea-sun-red-9b0.workers.dev/upload-pdf';
     const DEBUG_MODE = true;  // デバッグモード（本番ではfalseに）
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10MB
+    const MAX_FILES = 5;  // 最大5ファイル
 
     let currentUserId = null;
     let currentDisplayName = null;
     let debugLogs = [];
+    let selectedFiles = [];  // 選択されたファイルの配列
 
     // デバッグログ関数
     function debugLog(message) {
@@ -291,16 +294,22 @@
     function renderApp() {
       document.getElementById('app').innerHTML = `
         <h2>📄 PDF文字起こし</h2>
-        <p class="subtitle">PDFをアップロードして内容を要約します</p>
+        <p class="subtitle">PDFをアップロードして内容を要約します（最大5ファイル）</p>
         
         <div class="user-info">
           👤 <strong>${currentDisplayName}</strong> さん<br>
           <small>ID: ${currentUserId.substring(0, 20)}...</small>
         </div>
         
-        <input type="file" id="fileInput" accept="application/pdf">
-        <button class="upload-btn" id="uploadBtn">
+        <input type="file" id="fileInput" accept="application/pdf" multiple>
+        <button class="upload-btn" id="selectBtn">
           📁 PDFファイルを選択
+        </button>
+        
+        <div id="fileList" class="file-info"></div>
+        
+        <button class="upload-btn" id="uploadBtn" style="display:none; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+          🚀 まとめてアップロード (<span id="fileCount">0</span>件)
         </button>
         
         <div class="progress-bar" id="progressBar">
@@ -308,13 +317,13 @@
         </div>
         
         <div id="status"></div>
-        <div id="fileInfo" class="file-info"></div>
         ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
       `;
 
       // イベントリスナー設定
-      document.getElementById('uploadBtn').addEventListener('click', selectFile);
+      document.getElementById('selectBtn').addEventListener('click', selectFile);
       document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+      document.getElementById('uploadBtn').addEventListener('click', uploadFiles);
       
       updateDebugDisplay();
       debugLog('UI表示完了');
@@ -331,54 +340,135 @@
     // ========================================
     // ファイル選択時の処理
     // ========================================
-    async function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (!file) {
-        debugLog('ファイル選択キャンセル');
+    function handleFileSelect(event) {
+      const files = Array.from(event.target.files);
+      debugLog(`${files.length}個のファイルが選択されました`);
+
+      // ファイル数チェック
+      if (selectedFiles.length + files.length > MAX_FILES) {
+        showStatus(`❌ 最大${MAX_FILES}ファイルまでです`, 'error');
         return;
       }
 
-      debugLog('ファイル選択: ' + file.name);
-      debugLog('ファイルサイズ: ' + file.size + ' bytes');
-      debugLog('ファイルタイプ: ' + file.type);
+      // 各ファイルをチェック
+      for (const file of files) {
+        // PDFチェック
+        if (file.type !== 'application/pdf') {
+          showStatus(`❌ ${file.name}はPDFファイルではありません`, 'error');
+          continue;
+        }
 
-      // PDFチェック
-      if (file.type !== 'application/pdf') {
-        debugLog('エラー: PDFファイルではありません');
-        showStatus('❌ PDFファイルを選択してください', 'error');
+        // サイズチェック
+        if (file.size > MAX_FILE_SIZE) {
+          showStatus(`❌ ${file.name}は10MBを超えています`, 'error');
+          continue;
+        }
+
+        // 重複チェック
+        if (selectedFiles.some(f => f.name === file.name)) {
+          showStatus(`⚠️ ${file.name}は既に追加されています`, 'error');
+          continue;
+        }
+
+        selectedFiles.push(file);
+        debugLog(`追加: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+      }
+
+      updateFileList();
+      event.target.value = ''; // 入力をリセット
+    }
+
+    // ========================================
+    // ファイルリスト表示更新
+    // ========================================
+    function updateFileList() {
+      const fileListDiv = document.getElementById('fileList');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const fileCountSpan = document.getElementById('fileCount');
+
+      if (selectedFiles.length === 0) {
+        fileListDiv.style.display = 'none';
+        uploadBtn.style.display = 'none';
         return;
       }
 
-      // サイズチェック（10MB）
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        debugLog('エラー: ファイルサイズ超過 (' + file.size + ' bytes)');
-        showStatus('❌ ファイルサイズは10MB以下にしてください', 'error');
-        return;
-      }
+      fileListDiv.style.display = 'block';
+      uploadBtn.style.display = 'block';
+      fileCountSpan.textContent = selectedFiles.length;
 
-      // ファイル情報表示
-      const fileInfoDiv = document.getElementById('fileInfo');
-      fileInfoDiv.style.display = 'block';
-      fileInfoDiv.innerHTML = `
-        📎 <strong>${file.name}</strong><br>
-        📊 ${(file.size / 1024).toFixed(2)} KB
+      const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+      
+      fileListDiv.innerHTML = `
+        <div style="margin-bottom: 10px; padding: 10px; background: #f0f9ff; border-radius: 8px;">
+          <strong>選択中のファイル (${selectedFiles.length}/${MAX_FILES}件)</strong><br>
+          <small>合計サイズ: ${(totalSize / 1024 / 1024).toFixed(2)} MB</small>
+        </div>
+        ${selectedFiles.map((file, index) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 6px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; color: #333;">📎 ${file.name}</div>
+              <div style="font-size: 12px; color: #666;">📊 ${(file.size / 1024).toFixed(2)} KB</div>
+            </div>
+            <button onclick="removeFile(${index})" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 12px;">
+              ×削除
+            </button>
+          </div>
+        `).join('')}
+        <button onclick="selectFile()" style="width: 100%; margin-top: 10px; background: #e0f2fe; color: #0284c7; border: 2px dashed #0284c7; border-radius: 8px; padding: 10px; cursor: pointer; font-weight: 600;">
+          ➕ ファイルを追加
+        </button>
       `;
+    }
 
-      // アップロード開始
+    // ========================================
+    // ファイル削除
+    // ========================================
+    function removeFile(index) {
+      const fileName = selectedFiles[index].name;
+      selectedFiles.splice(index, 1);
+      debugLog(`削除: ${fileName}`);
+      updateFileList();
+    }
+
+    // ========================================
+    // アップロード実行
+    // ========================================
+    async function uploadFiles() {
+      if (selectedFiles.length === 0) {
+        showStatus('❌ ファイルが選択されていません', 'error');
+        return;
+      }
+
+      debugLog(`アップロード開始: ${selectedFiles.length}ファイル`);
+      
+      // ボタン無効化
       document.getElementById('uploadBtn').disabled = true;
-      showStatus('📤 アップロード中...', 'info');
-      showProgress(30);
+      document.getElementById('selectBtn').disabled = true;
+      showStatus(`📤 ${selectedFiles.length}件のファイルをアップロード中...`, 'info');
+      showProgress(10);
 
       try {
-        debugLog('Base64変換開始...');
-        const base64 = await fileToBase64(file);
-        debugLog('Base64変換完了 (長さ: ' + base64.length + ')');
-        showProgress(60);
+        // 各ファイルをBase64に変換
+        const filesData = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          showStatus(`🔄 変換中... (${i + 1}/${selectedFiles.length})`, 'info');
+          showProgress(10 + (i / selectedFiles.length) * 40);
+          
+          const base64 = await fileToBase64(file);
+          filesData.push({
+            fileName: file.name,
+            fileData: base64,
+            fileSize: file.size
+          });
+          
+          debugLog(`Base64変換完了: ${file.name}`);
+        }
 
-        debugLog('Cloudflare Workersに送信...');
-        debugLog('URL: ' + WORKER_URL);
-        
+        showProgress(60);
+        debugLog('全ファイルの変換完了。Workersに送信...');
+
+        // Workersに送信
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: {
@@ -387,9 +477,7 @@
           body: JSON.stringify({
             userId: currentUserId,
             displayName: currentDisplayName,
-            fileName: file.name,
-            fileData: base64,
-            fileSize: file.size
+            files: filesData
           })
         });
 
@@ -406,19 +494,36 @@
         debugLog('アップロード成功: ' + JSON.stringify(result));
         showProgress(100);
         
-        showStatus('✅ 処理中です。LINEで結果をお待ちください...', 'success');
+        showStatus('✅ 処理中です。結果はLINEトークで確認してください', 'success');
         
+        // LINEトークへリダイレクト
         setTimeout(() => {
-          debugLog('LIFF終了');
-          liff.closeWindow();
-        }, 3000);
+          debugLog('LINEトークへリダイレクト');
+          redirectToLine();
+        }, 2000);
 
       } catch (error) {
         debugLog('❌ エラー: ' + error.message);
         console.error('Upload Error:', error);
         showStatus('❌ エラー: ' + error.message, 'error');
         document.getElementById('uploadBtn').disabled = false;
+        document.getElementById('selectBtn').disabled = false;
         document.getElementById('progressBar').style.display = 'none';
+      }
+    }
+
+    // ========================================
+    // LINEトークへリダイレクト
+    // ========================================
+    function redirectToLine() {
+      if (liff.isInClient()) {
+        // LINEアプリ内 → ウィンドウを閉じる
+        debugLog('LINEアプリ内ブラウザ: closeWindow()');
+        liff.closeWindow();
+      } else {
+        // 外部ブラウザ → LINEトークを開く
+        debugLog('外部ブラウザ: LINE URLへリダイレクト');
+        window.location.href = 'https://line.me/R/ti/p/@568fexuc';
       }
     }
 
