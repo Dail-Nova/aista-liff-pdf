@@ -1480,8 +1480,16 @@
       debugLog('DOMContentLoaded');
       debugLog('LIFF ID: ' + LIFF_ID);
       debugLog('Device Type: ' + getDeviceType());
+      debugLog('User Agent: ' + navigator.userAgent);
+      
+      // タイムアウト設定（10秒）
+      const initTimeout = setTimeout(() => {
+        debugLog('⏰ LIFF初期化タイムアウト（10秒経過）');
+        showError('LIFF初期化がタイムアウトしました。ページを再読み込みしてください。');
+      }, 10000);
       
       if (typeof liff === 'undefined') {
+        clearTimeout(initTimeout);
         debugLog('❌ LIFF SDKが読み込まれていません');
         showError('LIFF SDKの読み込みに失敗しました');
         return;
@@ -1495,7 +1503,11 @@
         withLoginOnExternalBrowser: true
       })
       .then(() => {
+        clearTimeout(initTimeout);
         debugLog('✅ LIFF初期化成功');
+        debugLog('isInClient: ' + liff.isInClient());
+        debugLog('isLoggedIn: ' + liff.isLoggedIn());
+        debugLog('OS: ' + liff.getOS());
         
         if (!liff.isLoggedIn()) {
           debugLog('未ログイン状態を検出');
@@ -1507,7 +1519,7 @@
             debugLog('モバイル端末を検出 → 自動ログイン');
             liff.login();
           }
-          return;
+          return Promise.resolve(null);
         }
 
         debugLog('ログイン済み → プロフィール取得');
@@ -1515,7 +1527,7 @@
       })
       .then((profile) => {
         if (!profile) {
-          debugLog('プロフィール取得失敗（ログイン処理中）');
+          debugLog('プロフィール未取得（ログイン処理中またはログイン画面表示中）');
           return;
         }
         
@@ -1529,9 +1541,11 @@
         renderApp();
       })
       .catch((err) => {
+        clearTimeout(initTimeout);
         debugLog('❌ LIFF初期化エラー: ' + err.message);
+        debugLog('エラー詳細: ' + JSON.stringify(err));
         console.error('LIFF Error:', err);
-        showError('LIFF初期化に失敗しました: ' + err.message);
+        showError('LIFF初期化に失敗しました: ' + err.message + '<br><br>ページを再読み込みしてください。');
       });
     });
 
@@ -1715,168 +1729,4 @@
               <div class="file-item-name">📎 ${file.name}</div>
               <div class="file-item-size">📊 ${(file.size / 1024).toFixed(2)} KB</div>
             </div>
-            <button class="file-item-remove" onclick="removeFile(${index})">×削除</button>
-          </div>
-        `).join('')}
-        <button class="file-add-more" onclick="selectFile()">
-          ➕ ファイルを追加
-        </button>
-      `;
-    }
-
-    function removeFile(index) {
-      const fileName = selectedFiles[index].name;
-      selectedFiles.splice(index, 1);
-      debugLog(`削除: ${fileName}`);
-      updateFileList();
-    }
-
-    // ========================================
-    // アップロード
-    // ========================================
-    async function uploadFiles() {
-      if (selectedFiles.length === 0) {
-        showStatus('❌ ファイルが選択されていません', 'error');
-        return;
-      }
-
-      debugLog(`アップロード開始: ${selectedFiles.length}ファイル`);
-      
-      document.getElementById('uploadBtn').disabled = true;
-      document.getElementById('selectBtn').disabled = true;
-      showStatus(`📤 ${selectedFiles.length}件のファイルをアップロード中...`, 'info');
-      showProgress(10);
-
-      try {
-        const filesData = [];
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const file = selectedFiles[i];
-          showStatus(`🔄 変換中... (${i + 1}/${selectedFiles.length})`, 'info');
-          showProgress(10 + (i / selectedFiles.length) * 40);
-          
-          const base64 = await fileToBase64(file);
-          filesData.push({
-            fileName: file.name,
-            fileData: base64,
-            fileSize: file.size
-          });
-          
-          debugLog(`Base64変換完了: ${file.name}`);
-        }
-
-        showProgress(60);
-        debugLog('全ファイルの変換完了。Workersに送信...');
-
-        const response = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            userId: currentUserId,
-            displayName: currentDisplayName,
-            files: filesData
-          })
-        });
-
-        showProgress(90);
-        debugLog('レスポンス受信: ' + response.status);
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          debugLog('エラーレスポンス: ' + errorData);
-          throw new Error(`アップロード失敗 (${response.status}): ${errorData}`);
-        }
-
-        const result = await response.json();
-        debugLog('アップロード成功: ' + JSON.stringify(result));
-        showProgress(100);
-        
-        showStatus('✅ 処理中です。結果はLINEトークで確認してください', 'success');
-        
-        setTimeout(() => {
-          debugLog('LINEトークへリダイレクト');
-          redirectToLine();
-        }, 2000);
-
-      } catch (error) {
-        debugLog('❌ エラー: ' + error.message);
-        console.error('Upload Error:', error);
-        showStatus('❌ エラー: ' + error.message, 'error');
-        document.getElementById('uploadBtn').disabled = false;
-        document.getElementById('selectBtn').disabled = false;
-        document.getElementById('progressBar').style.display = 'none';
-      }
-    }
-
-    function redirectToLine() {
-      if (liff.isInClient()) {
-        debugLog('LINEアプリ内ブラウザ: closeWindow()');
-        liff.closeWindow();
-      } else {
-        debugLog('外部ブラウザ: LINE URLへリダイレクト');
-        
-        if (isPC()) {
-          showStatus('✅ 処理完了しました。LINEアプリで結果を確認してください。', 'success');
-          debugLog('PC環境: リダイレクトせず完了メッセージ表示');
-        } else {
-          window.location.href = 'https://line.me/R/ti/p/@568fexuc';
-        }
-      }
-    }
-
-    // ========================================
-    // ユーティリティ
-    // ========================================
-    function showStatus(message, type = 'info') {
-      const statusDiv = document.getElementById('status');
-      if (statusDiv) {
-        statusDiv.style.display = 'block';
-        statusDiv.className = `status status-${type}`;
-        statusDiv.textContent = message;
-      }
-      debugLog('Status: ' + message);
-    }
-
-    function showProgress(percent) {
-      const progressBar = document.getElementById('progressBar');
-      const progressFill = document.getElementById('progressFill');
-      if (progressBar && progressFill) {
-        progressBar.style.display = 'block';
-        progressFill.style.width = percent + '%';
-      }
-      debugLog('Progress: ' + percent + '%');
-    }
-
-    function showError(message) {
-      document.querySelector('.card').innerHTML = `
-        <div class="header">
-          <div class="header-icon">⚠️</div>
-          <h2 class="header-title">エラー</h2>
-          <p class="header-subtitle">LIFF初期化に失敗しました</p>
-        </div>
-        <div class="status status-error" style="display:block;">
-          ${message}
-        </div>
-        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
-      `;
-      updateDebugDisplay();
-    }
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = (error) => {
-          debugLog('FileReader Error: ' + error);
-          reject(error);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  </script>
-</body>
-</html>
+            <button
