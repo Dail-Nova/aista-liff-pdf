@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エラー - アイスタ</title>
+  
+  <!-- CSS読み込み -->
+  <link rel="stylesheet" href="css/background.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <!-- ========================================
+       背景レイヤー（固定・全ページ共通）
+       ======================================== -->
+  <div id="bg-container">
+    <!-- Layer 10: 放射状の光 -->
+    <div class="bg-lights"></div>
+    
+    <!-- Layer 20: 円弧 -->
+    <div class="bg-wave"></div>
+    
+    <!-- Layer 30: 数式アニメーション（27個） -->
+    <div class="math-symbols">
+      <!-- 左→右（5個） -->
+      <span class="math-symbol">π</span>
+      <span class="math-symbol">∑</span>
+      <span class="math-symbol math-equation">E = mc²</span>
+      <span class="math-symbol">∫</span>
+      <span class="math-symbol math-equation">F = ma</span>
+      
+      <!-- 右→左（5個） -->
+      <span class="math-symbol">θ</span>
+      <span class="math-symbol math-equation">y = mx + b</span>
+      <span class="math-symbol">Δ</span>
+      <span class="math-symbol math-equation">dy/dx</span>
+      <span class="math-symbol">α</span>
+      
+      <!-- 上→下（5個） -->
+      <span class="math-symbol">√</span>
+      <span class="math-symbol math-equation">f(x) = x²</span>
+      <span class="math-symbol">λ</span>
+      <span class="math-symbol math-equation">v = v₀ + at</span>
+      <span class="math-symbol">∂</span>
+      
+      <!-- 下→上（5個） -->
+      <span class="math-symbol">β</span>
+      <span class="math-symbol">γ</span>
+      <span class="math-symbol">∞</span>
+      <span class="math-symbol math-equation">a² + b² = c²</span>
+      <span class="math-symbol">ω</span>
+      
+      <!-- 斜め（7個） -->
+      <span class="math-symbol math-equation">sin²θ + cos²θ = 1</span>
+      <span class="math-symbol math-equation">dx/dt = v(t)</span>
+      <span class="math-symbol math-equation">A = πr²</span>
+      <span class="math-symbol math-equation">dy/dx = f'(x)</span>
+      <span class="math-symbol math-equation">∫f(x)dx</span>
+      <span class="math-symbol math-equation">PV = nRT</span>
+      <span class="math-symbol math-equation">x² + y² = r²</span>
+    </div>
+    
+    <!-- Layer 40: 光沢オーバーレイ -->
+    <div class="bg-gloss"></div>
+  </div>
+
+  <!-- ========================================
+       エラー画面
+       ======================================== -->
+  <div id="app-root">
+    <div class="container">
+      <div class="card">
+        <!-- ヘッダー -->
+        <div class="header">
+          <div class="header-icon">⚠️</div>
+          <h2 class="header-title">エラー</h2>
+          <p class="header-subtitle">LIFF初期化に失敗しました</p>
+        </div>
+        
+        <!-- エラーメッセージ -->
+        <div class="status status-error" style="display:block;" id="errorMessage">
+          エラーが発生しました
+        </div>
+        
+        <!-- デバッグ情報 -->
+        <div class="debug" id="debugInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- エラー表示スクリプト -->
+  <script src="js/error.js"></script>
+</body>
+</html>
