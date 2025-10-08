@@ -1295,12 +1295,13 @@
         debugLog('アップロード成功: ' + JSON.stringify(result));
         showProgress(100);
         
-        showStatus('✅ 処理完了しました！', 'success');
+        debugLog('処理完了 - 1秒後にボタン表示');
         
-        // 処理完了後、すぐに「LINEに戻る」ボタンを表示
-        setTimeout(() => {
-          showCloseButton();
-        }, 1000);
+        // 1秒待ってからボタン表示
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        debugLog('showCloseButton()を実行');
+        showCloseButton();
 
       } catch (error) {
         debugLog('❌ エラー: ' + error.message);
