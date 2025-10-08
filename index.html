@@ -7,7 +7,7 @@
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
   <style>
     /* ========================================
-       シンプルなスタイル（機能優先）
+       シンプルなスタイル(機能優先)
        ======================================== */
     * {
       margin: 0;
@@ -143,6 +143,40 @@
       line-height: 1.7;
     }
 
+    /* File Restrictions */
+    .file-restrictions {
+      background: #F0F9FF;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .restrictions-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #0284C7;
+      margin-bottom: 8px;
+    }
+
+    .restrictions-list {
+      list-style: none;
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.6;
+    }
+
+    .restrictions-list li {
+      padding-left: 12px;
+      position: relative;
+    }
+
+    .restrictions-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #0284C7;
+    }
+
     /* Buttons */
     .btn {
       width: 100%;
@@ -158,6 +192,11 @@
 
     .btn:active {
       transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .btn-primary {
@@ -245,7 +284,7 @@
     }
 
     /* ========================================
-       Page 4: Progress
+       Page 4: Progress (3つの光るドット)
        ======================================== */
     .progress-container {
       margin: 24px 0;
@@ -256,21 +295,46 @@
       display: block;
     }
 
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: #E2E8F0;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 12px;
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
-    .progress-fill {
-      height: 100%;
+    .dot {
+      width: 10px;
+      height: 10px;
       background: #0284C7;
-      border-radius: 4px;
-      width: 0%;
-      transition: width 0.3s ease;
+      border-radius: 50%;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    .dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% {
+        transform: scale(0.6);
+        opacity: 0.3;
+        box-shadow: 0 0 0 rgba(2, 132, 199, 0);
+      }
+      50% {
+        transform: scale(1.4);
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(2, 132, 199, 0.6),
+                    0 0 40px rgba(2, 132, 199, 0.3);
+      }
     }
 
     .progress-text {
@@ -329,6 +393,10 @@
     }
 
     .btn-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       background: #06C755;
       color: white;
       width: 100%;
@@ -338,6 +406,13 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .line-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
     }
 
     .btn-line:active {
@@ -357,8 +432,14 @@
       display: block;
     }
 
+    .error-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
     .error-title {
       font-size: 20px;
+      font-weight: 600;
       color: #EF4444;
       margin-bottom: 12px;
     }
@@ -367,6 +448,59 @@
       font-size: 14px;
       color: #64748B;
       line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .error-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ========================================
+       Toast Notification
+       ======================================== */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1A202C;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+
+    .toast.active {
+      display: block;
+    }
+
+    .toast.error {
+      background: #EF4444;
+    }
+
+    .toast.warning {
+      background: #F59E0B;
+    }
+
+    .toast.success {
+      background: #10B981;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
     }
 
     /* ========================================
@@ -384,12 +518,14 @@
   </style>
 </head>
 <body>
+  <div class="toast" id="toast"></div>
+
   <div class="container">
     <div class="card" id="app">
       <!-- Page 0: Loading -->
       <div class="loading-screen" id="page-loading">
         <div class="loading-spinner"></div>
-        <p class="loading-text">LIFF初期化中...</p>
+        <p class="loading-text">Loading...</p>
       </div>
 
       <!-- Page 1: Login -->
@@ -415,6 +551,16 @@
           </p>
         </div>
 
+        <!-- File Restrictions -->
+        <div class="file-restrictions">
+          <p class="restrictions-title">ファイル制限</p>
+          <ul class="restrictions-list">
+            <li>最大5件まで同時アップロード可能</li>
+            <li>1ファイルあたり10MB以下</li>
+            <li>PDF形式のみ対応</li>
+          </ul>
+        </div>
+
         <input type="file" id="fileInput" accept="application/pdf" multiple>
         
         <button class="btn btn-primary" id="selectBtn">
@@ -430,10 +576,12 @@
 
         <!-- Page 4: Progress -->
         <div class="progress-container" id="progressContainer">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+          <div class="loading-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
           </div>
-          <p class="progress-text" id="progressText">PDFを変換しています...</p>
+          <p class="progress-text" id="progressText">変換中...</p>
         </div>
 
         <div class="status-message" id="statusMessage"></div>
@@ -441,21 +589,25 @@
 
       <!-- Page 5: Complete -->
       <div class="complete-screen" id="page-complete">
-        <h3 class="complete-title">処理が完了しました</h3>
+        <h3 class="complete-title">完了しました！</h3>
         <div class="complete-divider"></div>
         <p class="complete-message">
-          LINEのトークで結果をお待ちください<br>
-          通常1-2分ほどで届きます
+          LINEで結果をお届けしています。<br><br>
+          今すぐトーク画面を<br>
+          チェックしてみましょう！
         </p>
         <button class="btn btn-line" id="btnCloseLiff" style="display:none;" onclick="closeLiffWindow()">
-          LINEに戻る
+          <img src="data:image/png;base64,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" alt="LINE" class="line-icon">
+          <span>LINEに戻る</span>
         </button>
       </div>
 
       <!-- Error Screen -->
       <div class="error-screen" id="page-error">
-        <h3 class="error-title">エラー</h3>
+        <div class="error-icon">⚠️</div>
+        <h3 class="error-title" id="errorTitle">エラー</h3>
         <p class="error-message" id="errorMessage"></p>
+        <div class="error-actions" id="errorActions"></div>
       </div>
     </div>
   </div>
@@ -475,6 +627,266 @@
     let selectedFiles = [];
 
     // ========================================
+    // エラータイプ定義
+    // ========================================
+    const ErrorType = {
+      LIFF_SDK_LOAD_FAILED: 'LIFF_SDK_LOAD_FAILED',
+      LIFF_INIT_FAILED: 'LIFF_INIT_FAILED',
+      PROFILE_FETCH_FAILED: 'PROFILE_FETCH_FAILED',
+      FILE_TYPE_INVALID: 'FILE_TYPE_INVALID',
+      FILE_SIZE_EXCEEDED: 'FILE_SIZE_EXCEEDED',
+      FILE_COUNT_EXCEEDED: 'FILE_COUNT_EXCEEDED',
+      FILE_DUPLICATE: 'FILE_DUPLICATE',
+      FILE_READ_FAILED: 'FILE_READ_FAILED',
+      BASE64_CONVERSION_FAILED: 'BASE64_CONVERSION_FAILED',
+      NETWORK_ERROR: 'NETWORK_ERROR',
+      SERVER_ERROR_4XX: 'SERVER_ERROR_4XX',
+      SERVER_ERROR_5XX: 'SERVER_ERROR_5XX',
+      RESPONSE_PARSE_FAILED: 'RESPONSE_PARSE_FAILED',
+      CLOSE_WINDOW_FAILED: 'CLOSE_WINDOW_FAILED',
+      LOGIN_FAILED: 'LOGIN_FAILED',
+      UNKNOWN_ERROR: 'UNKNOWN_ERROR'
+    };
+
+    // ========================================
+    // エラーメッセージ定義
+    // ========================================
+    const ErrorMessages = {
+      [ErrorType.LIFF_SDK_LOAD_FAILED]: {
+        title: 'LIFF SDKの読み込みに失敗',
+        message: 'ページを再読み込みしてください',
+        action: 'reload',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.LIFF_INIT_FAILED]: {
+        title: 'LINEとの接続に失敗',
+        message: 'しばらく待ってから再度お試しください',
+        action: 'retry',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.PROFILE_FETCH_FAILED]: {
+        title: 'ユーザー情報の取得に失敗',
+        message: '再度ログインしてください',
+        action: 'relogin',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.FILE_TYPE_INVALID]: {
+        title: 'ファイル形式エラー',
+        message: 'PDFファイルのみアップロード可能です',
+        action: 'continue',
+        retryable: false,
+        toast: true
+      },
+      [ErrorType.FILE_SIZE_EXCEEDED]: {
+        title: 'ファイルサイズ超過',
+        message: 'ファイルサイズは10MB以下にしてください',
+        action: 'continue',
+        retryable: false,
+        toast: true
+      },
+      [ErrorType.FILE_COUNT_EXCEEDED]: {
+        title: 'ファイル数超過',
+        message: '一度にアップロードできるのは5ファイルまでです',
+        action: 'continue',
+        retryable: false,
+        toast: true
+      },
+      [ErrorType.FILE_DUPLICATE]: {
+        title: '重複ファイル',
+        message: '同じファイルが既に選択されています',
+        action: 'continue',
+        retryable: false,
+        toast: true
+      },
+      [ErrorType.FILE_READ_FAILED]: {
+        title: 'ファイル読み込みエラー',
+        message: 'ファイルが破損しているか、アクセスできません',
+        action: 'cancel',
+        retryable: false,
+        toast: false
+      },
+      [ErrorType.BASE64_CONVERSION_FAILED]: {
+        title: 'ファイル変換エラー',
+        message: 'ファイルの変換に失敗しました',
+        action: 'cancel',
+        retryable: false,
+        toast: false
+      },
+      [ErrorType.NETWORK_ERROR]: {
+        title: 'ネットワークエラー',
+        message: 'インターネット接続を確認してください',
+        action: 'retry',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.SERVER_ERROR_4XX]: {
+        title: 'リクエストエラー',
+        message: 'データの送信に失敗しました',
+        action: 'cancel',
+        retryable: false,
+        toast: false
+      },
+      [ErrorType.SERVER_ERROR_5XX]: {
+        title: 'サーバーエラー',
+        message: 'サーバーで問題が発生しています。しばらく待ってから再度お試しください',
+        action: 'retry',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.RESPONSE_PARSE_FAILED]: {
+        title: 'レスポンス解析エラー',
+        message: 'サーバーからの応答が不正です',
+        action: 'cancel',
+        retryable: false,
+        toast: false
+      },
+      [ErrorType.CLOSE_WINDOW_FAILED]: {
+        title: '画面を閉じられません',
+        message: '画面左上の「×」ボタンで閉じてください',
+        action: 'manual',
+        retryable: false,
+        toast: true
+      },
+      [ErrorType.LOGIN_FAILED]: {
+        title: 'ログインに失敗',
+        message: '再度ログインボタンを押してください',
+        action: 'relogin',
+        retryable: true,
+        toast: false
+      },
+      [ErrorType.UNKNOWN_ERROR]: {
+        title: '予期しないエラー',
+        message: 'エラーが発生しました。ページを再読み込みしてください',
+        action: 'reload',
+        retryable: true,
+        toast: false
+      }
+    };
+
+    // ========================================
+    // エラーハンドラークラス
+    // ========================================
+    class ErrorHandler {
+      constructor() {
+        this.retryCount = {};
+        this.maxRetries = 3;
+      }
+
+      handle(errorType, context = {}) {
+        const errorConfig = ErrorMessages[errorType] || ErrorMessages[ErrorType.UNKNOWN_ERROR];
+        
+        console.error(`[${errorType}]`, context);
+
+        if (errorConfig.toast) {
+          this.showToast(errorConfig.message, 'error');
+        } else {
+          this.showErrorUI(errorConfig, errorType, context);
+        }
+      }
+
+      showToast(message, type = 'error') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} active`;
+        
+        setTimeout(() => {
+          toast.classList.remove('active');
+        }, 3000);
+      }
+
+      showErrorUI(config, errorType, context) {
+        const errorTitle = document.getElementById('errorTitle');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorActions = document.getElementById('errorActions');
+        
+        errorTitle.textContent = config.title;
+        errorMessage.textContent = config.message;
+        
+        errorActions.innerHTML = '';
+        
+        if (config.action === 'retry' && config.retryable) {
+          const retryBtn = document.createElement('button');
+          retryBtn.className = 'btn btn-primary';
+          retryBtn.textContent = '再試行';
+          retryBtn.onclick = () => this.retry(errorType);
+          errorActions.appendChild(retryBtn);
+        }
+        
+        if (config.action === 'reload') {
+          const reloadBtn = document.createElement('button');
+          reloadBtn.className = 'btn btn-primary';
+          reloadBtn.textContent = 'ページを再読み込み';
+          reloadBtn.onclick = () => location.reload();
+          errorActions.appendChild(reloadBtn);
+        }
+        
+        if (config.action === 'relogin') {
+          const loginBtn = document.createElement('button');
+          loginBtn.className = 'btn btn-primary';
+          loginBtn.textContent = '再ログイン';
+          loginBtn.onclick = doLogin;
+          errorActions.appendChild(loginBtn);
+        }
+        
+        if (config.action === 'cancel' || config.action === 'continue' || config.action === 'manual') {
+          const backBtn = document.createElement('button');
+          backBtn.className = 'btn btn-primary';
+          backBtn.textContent = '戻る';
+          backBtn.onclick = () => {
+            this.resetUploadState();
+            showPage('page-main');
+          };
+          errorActions.appendChild(backBtn);
+        }
+        
+        showPage('page-error');
+      }
+
+      retry(errorType) {
+        if (!this.retryCount[errorType]) {
+          this.retryCount[errorType] = 0;
+        }
+        
+        this.retryCount[errorType]++;
+        
+        if (this.retryCount[errorType] >= this.maxRetries) {
+          this.showToast('再試行回数が上限に達しました。ページを再読み込みしてください。', 'error');
+          return;
+        }
+        
+        switch (errorType) {
+          case ErrorType.LIFF_INIT_FAILED:
+            location.reload();
+            break;
+          case ErrorType.NETWORK_ERROR:
+          case ErrorType.SERVER_ERROR_5XX:
+            showPage('page-main');
+            uploadFiles();
+            break;
+          default:
+            showPage('page-main');
+        }
+      }
+
+      resetUploadState() {
+        const selectBtn = document.getElementById('selectBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        if (selectBtn) selectBtn.disabled = false;
+        if (uploadBtn) uploadBtn.disabled = false;
+        if (progressContainer) progressContainer.classList.remove('active');
+        if (statusMessage) statusMessage.classList.remove('active');
+      }
+    }
+
+    const errorHandler = new ErrorHandler();
+
+    // ========================================
     // ページ切り替え
     // ========================================
     function showPage(pageName) {
@@ -483,15 +895,13 @@
         const element = document.getElementById(page);
         if (element) {
           element.style.display = 'none';
+          element.classList.remove('active');
         }
       });
       
       const targetPage = document.getElementById(pageName);
       if (targetPage) {
         targetPage.style.display = 'block';
-      }
-      
-      if (pageName === 'page-main') {
         targetPage.classList.add('active');
       }
     }
@@ -505,20 +915,28 @@
     }
 
     // ========================================
-    // LIFF初期化
+    // LIFF初期化（高速化版）
     // ========================================
     window.addEventListener('DOMContentLoaded', function() {
       console.log('DOMContentLoaded');
       
+      showPage('page-loading');
+      
       if (typeof liff === 'undefined') {
-        showError('LIFF SDKの読み込みに失敗しました');
+        errorHandler.handle(ErrorType.LIFF_SDK_LOAD_FAILED);
         return;
       }
 
-      liff.init({ 
-        liffId: LIFF_ID,
-        withLoginOnExternalBrowser: true
-      })
+      // タイムアウト付きLIFF初期化
+      Promise.race([
+        liff.init({ 
+          liffId: LIFF_ID,
+          withLoginOnExternalBrowser: true
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('LIFF init timeout')), 5000)
+        )
+      ])
       .then(() => {
         console.log('LIFF初期化成功');
         
@@ -542,13 +960,17 @@
         currentDisplayName = profile.displayName;
         
         console.log('User ID:', currentUserId);
-        console.log('Display Name:', currentDisplayName);
         
         showMainScreen();
       })
       .catch((err) => {
         console.error('LIFF初期化エラー:', err);
-        showError('LIFF初期化に失敗しました: ' + err.message);
+        
+        if (err.message && err.message.includes('profile')) {
+          errorHandler.handle(ErrorType.PROFILE_FETCH_FAILED, { error: err });
+        } else {
+          errorHandler.handle(ErrorType.LIFF_INIT_FAILED, { error: err, liffId: LIFF_ID });
+        }
       });
     });
 
@@ -561,12 +983,12 @@
         liff.login();
       } catch (error) {
         console.error('ログインエラー:', error);
-        showError('ログインに失敗しました: ' + error.message);
+        errorHandler.handle(ErrorType.LOGIN_FAILED, { error });
       }
     }
 
     // ========================================
-    // メイン画面表示（Page 2）
+    // メイン画面表示
     // ========================================
     function showMainScreen() {
       showPage('page-main');
@@ -591,28 +1013,49 @@
       console.log(`${files.length}個のファイルが選択されました`);
 
       if (selectedFiles.length + files.length > MAX_FILES) {
-        alert(`最大${MAX_FILES}ファイルまでです`);
+        errorHandler.handle(ErrorType.FILE_COUNT_EXCEEDED, {
+          current: selectedFiles.length,
+          adding: files.length,
+          max: MAX_FILES
+        });
+        event.target.value = '';
         return;
       }
 
+      let addedCount = 0;
+
       for (const file of files) {
         if (file.type !== 'application/pdf') {
-          alert(`${file.name}はPDFファイルではありません`);
+          errorHandler.handle(ErrorType.FILE_TYPE_INVALID, {
+            fileName: file.name,
+            fileType: file.type
+          });
           continue;
         }
 
         if (file.size > MAX_FILE_SIZE) {
-          alert(`${file.name}は10MBを超えています`);
+          errorHandler.handle(ErrorType.FILE_SIZE_EXCEEDED, {
+            fileName: file.name,
+            fileSize: file.size,
+            maxSize: MAX_FILE_SIZE
+          });
           continue;
         }
 
         if (selectedFiles.some(f => f.name === file.name)) {
-          alert(`${file.name}は既に追加されています`);
+          errorHandler.handle(ErrorType.FILE_DUPLICATE, {
+            fileName: file.name
+          });
           continue;
         }
 
         selectedFiles.push(file);
+        addedCount++;
         console.log(`追加: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+      }
+
+      if (addedCount > 0) {
+        errorHandler.showToast(`${addedCount}件のファイルを追加しました`, 'success');
       }
 
       updateFileList();
@@ -620,7 +1063,7 @@
     }
 
     // ========================================
-    // ファイルリスト更新（Page 3）
+    // ファイルリスト更新
     // ========================================
     function updateFileList() {
       const fileListDiv = document.getElementById('fileList');
@@ -657,15 +1100,16 @@
       const fileName = selectedFiles[index].name;
       selectedFiles.splice(index, 1);
       console.log(`削除: ${fileName}`);
+      errorHandler.showToast(`${fileName} を削除しました`, 'warning');
       updateFileList();
     }
 
     // ========================================
-    // アップロード処理（Page 4）
+    // アップロード処理
     // ========================================
     async function uploadFiles() {
       if (selectedFiles.length === 0) {
-        alert('ファイルが選択されていません');
+        errorHandler.showToast('ファイルが選択されていません', 'warning');
         return;
       }
 
@@ -679,25 +1123,32 @@
       progressContainer.classList.add('active');
       statusMessage.classList.add('active');
       
-      showProgress(10, 'ファイルを準備中...');
+      showProgress('ファイルを準備中...');
 
       try {
         const filesData = [];
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
-          showProgress(10 + (i / selectedFiles.length) * 40, `変換中... (${i + 1}/${selectedFiles.length})`);
+          showProgress(`変換中... (${i + 1}/${selectedFiles.length})`);
           
-          const base64 = await fileToBase64(file);
-          filesData.push({
-            fileName: file.name,
-            fileData: base64,
-            fileSize: file.size
-          });
-          
-          console.log(`Base64変換完了: ${file.name}`);
+          try {
+            const base64 = await fileToBase64(file);
+            filesData.push({
+              fileName: file.name,
+              fileData: base64,
+              fileSize: file.size
+            });
+            console.log(`Base64変換完了: ${file.name}`);
+          } catch (conversionError) {
+            errorHandler.handle(ErrorType.BASE64_CONVERSION_FAILED, {
+              fileName: file.name,
+              error: conversionError
+            });
+            throw conversionError;
+          }
         }
 
-        showProgress(60, 'サーバーに送信中...');
+        showProgress('サーバーに送信中...');
         console.log('Workersに送信...');
 
         const response = await fetch(WORKER_URL, {
@@ -712,18 +1163,42 @@
           })
         });
 
-        showProgress(90, 'レスポンス受信中...');
+        showProgress('レスポンス受信中...');
         console.log('レスポンス受信:', response.status);
 
-        if (!response.ok) {
+        if (response.status >= 400 && response.status < 500) {
           const errorData = await response.text();
-          throw new Error(`アップロード失敗 (${response.status}): ${errorData}`);
+          errorHandler.handle(ErrorType.SERVER_ERROR_4XX, {
+            status: response.status,
+            data: errorData
+          });
+          return;
         }
 
-        const result = await response.json();
+        if (response.status >= 500) {
+          const errorData = await response.text();
+          errorHandler.handle(ErrorType.SERVER_ERROR_5XX, {
+            status: response.status,
+            data: errorData
+          });
+          return;
+        }
+
+        let result;
+        try {
+          result = await response.json();
+        } catch (parseError) {
+          const responseText = await response.text();
+          errorHandler.handle(ErrorType.RESPONSE_PARSE_FAILED, {
+            error: parseError,
+            response: responseText
+          });
+          return;
+        }
+
         console.log('アップロード成功:', result);
         
-        showProgress(100, '完了');
+        showProgress('完了');
         
         await new Promise(resolve => setTimeout(resolve, 1000));
         
@@ -731,41 +1206,47 @@
 
       } catch (error) {
         console.error('エラー:', error);
-        showError('エラー: ' + error.message);
-        document.getElementById('selectBtn').disabled = false;
-        document.getElementById('uploadBtn').disabled = false;
+        
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          errorHandler.handle(ErrorType.NETWORK_ERROR, { error });
+        } else if (error.name !== 'BASE64_CONVERSION_FAILED') {
+          errorHandler.handle(ErrorType.UNKNOWN_ERROR, { error });
+        }
+        
+        errorHandler.resetUploadState();
       }
     }
 
-    function showProgress(percent, message) {
-      const progressFill = document.getElementById('progressFill');
+    function showProgress(message) {
       const progressText = document.getElementById('progressText');
       const statusMessage = document.getElementById('statusMessage');
       
-      if (progressFill) progressFill.style.width = percent + '%';
-      if (progressText) progressText.textContent = message || 'PDFを変換しています...';
+      if (progressText) progressText.textContent = message || '変換中...';
       if (statusMessage) statusMessage.textContent = message;
       
-      console.log(`Progress: ${percent}% - ${message}`);
+      console.log(`Progress: ${message}`);
     }
 
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        
         reader.onload = () => {
           const base64 = reader.result.split(',')[1];
           resolve(base64);
         };
+        
         reader.onerror = (error) => {
           console.error('FileReader Error:', error);
           reject(error);
         };
+        
         reader.readAsDataURL(file);
       });
     }
 
     // ========================================
-    // 完了画面表示（Page 5）
+    // 完了画面表示
     // ========================================
     function showCompletePage() {
       console.log('完了画面表示');
@@ -775,7 +1256,7 @@
       const btnCloseLiff = document.getElementById('btnCloseLiff');
       
       if (isInLiffBrowser) {
-        btnCloseLiff.style.display = 'block';
+        btnCloseLiff.style.display = 'flex';
       } else {
         btnCloseLiff.style.display = 'none';
       }
@@ -790,21 +1271,12 @@
           console.log('closeWindow() 実行成功');
         } catch (error) {
           console.error('closeWindow() エラー:', error);
-          alert('画面左上の「×」ボタンで閉じてください');
+          errorHandler.handle(ErrorType.CLOSE_WINDOW_FAILED, { error });
         }
       } else {
         console.log('外部ブラウザのため closeWindow() はスキップ');
-        alert('LINEアプリを開いて結果を確認してください');
+        errorHandler.showToast('LINEアプリを開いて結果を確認してください', 'warning');
       }
-    }
-
-    // ========================================
-    // エラー表示
-    // ========================================
-    function showError(message) {
-      showPage('page-error');
-      document.getElementById('errorMessage').textContent = message;
-      console.error('Error:', message);
     }
   </script>
 </body>
