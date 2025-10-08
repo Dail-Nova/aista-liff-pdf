@@ -2,86 +2,12 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>PDF文字起こし - アイスタ</title>
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
   <style>
     /* ========================================
-       CSS Variables - Design System v4.0
-       ======================================== */
-    :root {
-      /* メインカラー: Sky Blue系(#0284C7ベース・艶感あり) */
-      --color-primary-deep: #0C4A6E;
-      --color-primary-dark: #075985;
-      --color-primary: #0284C7;
-      --color-primary-light: #0EA5E9;
-      --color-primary-bright: #38BDF8;
-      
-      /* LINE緑: 公式色ベース(深みあり) */
-      --color-line-dark: #05A653;
-      --color-line: #06C755;
-      --color-line-light: #2DD170;
-      
-      /* ニュートラルカラー */
-      --color-white: #FFFFFF;
-      --color-text-main: #1A202C;
-      --color-text-sub: #64748B;
-      --color-text-light: #94A3B8;
-      --color-border: #E2E8F0;
-      --color-bg-light: #F8FAFC;
-      
-      /* エラーカラー(v3.1互換性のため残す) */
-      --color-error: #EF4444;
-      
-      /* タイポグラフィシステム(モバイル最適) */
-      --font-size-h2: 22px;
-      --font-size-h3: 18px;
-      --font-size-base: 16px;
-      --font-size-body: 14px;
-      --font-size-small: 13px;
-      --font-size-xs: 12px;
-      
-      /* フォントウェイト */
-      --font-weight-regular: 400;
-      --font-weight-medium: 500;
-      --font-weight-semibold: 600;
-      --font-weight-bold: 700;
-      
-      /* 字間・行間 */
-      --letter-spacing-heading: 0.05em;
-      --letter-spacing-body: 0.02em;
-      --letter-spacing-ui: 0.04em;
-      --letter-spacing-en: 0.12em;
-      
-      --line-height-heading: 1.35;
-      --line-height-body: 1.7;
-      --line-height-body-relaxed: 1.9;
-      --line-height-ui: 1.5;
-      
-      /* スペーシング(モバイル最適) */
-      --space-screen-edge: 20px;
-      --space-section: 32px;
-      --space-element: 16px;
-      --space-compact: 12px;
-      --space-tap-safe: 8px;
-      
-      /* タップターゲットサイズ */
-      --tap-target-min: 44px;
-      --button-height: 52px;
-      
-      /* 後方互換性のため旧変数を残す */
-      --space-xs: 8px;
-      --space-sm: 12px;
-      --space-md: 20px;
-      --space-lg: 32px;
-      --space-xl: 48px;
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-    }
-
-    /* ========================================
-       Base Styles
+       シンプルなスタイル（機能優先）
        ======================================== */
     * {
       margin: 0;
@@ -91,957 +17,88 @@
     }
 
     body {
-      font-family: 
-        -apple-system,
-        BlinkMacSystemFont,
-        "Hiragino Sans",
-        "Hiragino Kaku Gothic ProN",
-        "Yu Gothic UI",
-        "Segoe UI",
-        "Meiryo",
-        sans-serif;
-      background: linear-gradient(135deg, #001845 0%, #003366 25%, #1A4BA0 60%, #0080FF 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      background: linear-gradient(135deg, #001845 0%, #003366 50%, #0080FF 100%);
       background-attachment: fixed;
       min-height: 100vh;
-      padding: var(--space-screen-edge);
-      padding-bottom: max(var(--space-screen-edge), env(safe-area-inset-bottom));
-      line-height: var(--line-height-body);
-      color: var(--color-text-main);
-      position: relative;
-      overflow-x: hidden;
-      
-      /* テキストレンダリング最適化 */
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      
-      /* タッチ操作最適化 */
-      touch-action: manipulation;
-    }
-    
-    /* Layer 1: 放射状の光 */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(
-          ellipse 800px 600px at 85% 85%,
-          rgba(0, 128, 255, 0.3) 0%,
-          transparent 60%
-        ),
-        radial-gradient(
-          circle 400px at 20% 30%,
-          rgba(255, 255, 255, 0.08) 0%,
-          transparent 70%
-        ),
-        radial-gradient(
-          ellipse 500px 400px at 60% 40%,
-          rgba(26, 75, 160, 0.15) 0%,
-          transparent 80%
-        );
-      pointer-events: none;
-      z-index: 0;
-      animation: pulse-glow 8s ease-in-out infinite;
-    }
-    
-    /* Layer 2: 大きな円弧 */
-    .bg-wave {
-      position: fixed;
-      bottom: -25%;
-      right: -15%;
-      width: 70%;
-      height: 70%;
-      background: radial-gradient(
-        ellipse at center,
-        rgba(0, 128, 255, 0.25) 0%,
-        rgba(0, 128, 255, 0.15) 40%,
-        transparent 70%
-      );
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-      animation: slow-rotate 60s linear infinite;
-    }
-    
-    /* Layer 4: 光沢オーバーレイ */
-    .bg-gloss {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.05) 30%,
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.05) 100%
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-    
-    /* Layer 3: 数式パターン */
-    .math-pattern {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-    
-    .math-symbol {
-      position: absolute;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.20);
-      font-family: 'Times New Roman', serif;
-      user-select: none;
-      white-space: nowrap;
-    }
-    
-    .math-equation {
-      letter-spacing: 0.05em;
-    }
-    
-    /* 数式配置(左→右: 5個) */
-    .math-symbol:nth-child(1) { top: 15%; font-size: 120px; animation: roll-right-1 35s linear infinite; animation-delay: -10.5s; }
-    .math-symbol:nth-child(2) { top: 45%; font-size: 50px; animation: roll-right-2 42s linear infinite; animation-delay: -21s; }
-    .math-symbol:nth-child(3) { top: 70%; font-size: 90px; animation: roll-right-3 38s linear infinite; animation-delay: -15.2s; }
-    .math-symbol:nth-child(4) { top: 25%; font-size: 110px; animation: roll-right-4 40s linear infinite; animation-delay: -14s; }
-    .math-symbol:nth-child(5) { top: 60%; font-size: 85px; animation: roll-right-5 36s linear infinite; animation-delay: -19.8s; }
-    
-    /* 数式配置(右→左: 5個) */
-    .math-symbol:nth-child(6) { top: 20%; font-size: 55px; animation: roll-left-1 44s linear infinite; animation-delay: -29.9s; }
-    .math-symbol:nth-child(7) { top: 55%; font-size: 45px; animation: roll-left-2 39s linear infinite; animation-delay: -17.6s; }
-    .math-symbol:nth-child(8) { top: 80%; font-size: 100px; animation: roll-left-3 41s linear infinite; animation-delay: -30.8s; }
-    .math-symbol:nth-child(9) { top: 35%; font-size: 95px; animation: roll-left-4 37s linear infinite; animation-delay: -14.1s; }
-    .math-symbol:nth-child(10) { top: 65%; font-size: 80px; animation: roll-left-5 43s linear infinite; animation-delay: -24.9s; }
-    
-    /* 数式配置(上→下: 5個) */
-    .math-symbol:nth-child(11) { left: 10%; font-size: 50px; animation: roll-down-1 40s linear infinite; animation-delay: -11.2s; }
-    .math-symbol:nth-child(12) { left: 30%; font-size: 40px; animation: roll-down-2 45s linear infinite; animation-delay: -23.4s; }
-    .math-symbol:nth-child(13) { left: 50%; font-size: 105px; animation: roll-down-3 38s linear infinite; animation-delay: -7.2s; }
-    .math-symbol:nth-child(14) { left: 70%; font-size: 115px; animation: roll-down-4 42s linear infinite; animation-delay: -25.6s; }
-    .math-symbol:nth-child(15) { left: 90%; font-size: 90px; animation: roll-down-5 36s linear infinite; animation-delay: -12.6s; }
-    
-    /* 数式配置(下→上: 5個) */
-    .math-symbol:nth-child(16) { left: 15%; font-size: 48px; animation: roll-up-1 39s linear infinite; animation-delay: -28.1s; }
-    .math-symbol:nth-child(17) { left: 35%; font-size: 52px; animation: roll-up-2 44s linear infinite; animation-delay: -21.1s; }
-    .math-symbol:nth-child(18) { left: 55%; font-size: 100px; animation: roll-up-3 37s linear infinite; animation-delay: -28.9s; }
-    .math-symbol:nth-child(19) { left: 75%; font-size: 95px; animation: roll-up-4 41s linear infinite; animation-delay: -16.8s; }
-    .math-symbol:nth-child(20) { left: 85%; font-size: 88px; animation: roll-up-5 43s linear infinite; animation-delay: -28s; }
-    
-    /* 数式配置(斜め: 7個) */
-    .math-symbol:nth-child(21) { top: 20%; left: 15%; font-size: 50px; animation: roll-diagonal-br-1 50s linear infinite; animation-delay: -16s; }
-    .math-symbol:nth-child(22) { top: 30%; left: 75%; font-size: 110px; animation: roll-diagonal-br-2 48s linear infinite; animation-delay: -27.8s; }
-    .math-symbol:nth-child(23) { top: 70%; left: 80%; font-size: 48px; animation: roll-diagonal-bl-1 52s linear infinite; animation-delay: -35.4s; }
-    .math-symbol:nth-child(24) { top: 80%; left: 25%; font-size: 42px; animation: roll-diagonal-bl-2 46s linear infinite; animation-delay: -11s; }
-    .math-symbol:nth-child(25) { top: 50%; left: 50%; font-size: 38px; animation: roll-diagonal-tr-1 54s linear infinite; animation-delay: -24.3s; }
-    .math-symbol:nth-child(26) { top: 40%; left: 65%; font-size: 45px; animation: roll-diagonal-tr-2 49s linear infinite; animation-delay: -34.8s; }
-    .math-symbol:nth-child(27) { top: 65%; left: 35%; font-size: 52px; animation: roll-diagonal-tl 51s linear infinite; animation-delay: -9.7s; }
-    
-    /* アニメーション定義: 左→右 */
-    @keyframes roll-right-1 {
-      0% { transform: translate(-120%, -2%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), 2%); opacity: 0; }
-    }
-    @keyframes roll-right-2 {
-      0% { transform: translate(-120%, 1%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), -1%); opacity: 0; }
-    }
-    @keyframes roll-right-3 {
-      0% { transform: translate(-120%, -1%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), 1%); opacity: 0; }
-    }
-    @keyframes roll-right-4 {
-      0% { transform: translate(-120%, 2%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), -2%); opacity: 0; }
-    }
-    @keyframes roll-right-5 {
-      0% { transform: translate(-120%, 0.5%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), -0.5%); opacity: 0; }
-    }
-    
-    /* アニメーション定義: 右→左 */
-    @keyframes roll-left-1 {
-      0% { transform: translate(calc(100vw + 120%), 1.5%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, -1.5%); opacity: 0; }
-    }
-    @keyframes roll-left-2 {
-      0% { transform: translate(calc(100vw + 120%), -1%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, 1%); opacity: 0; }
-    }
-    @keyframes roll-left-3 {
-      0% { transform: translate(calc(100vw + 120%), 2%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, -2%); opacity: 0; }
-    }
-    @keyframes roll-left-4 {
-      0% { transform: translate(calc(100vw + 120%), -0.5%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, 0.5%); opacity: 0; }
-    }
-    @keyframes roll-left-5 {
-      0% { transform: translate(calc(100vw + 120%), 1%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, -1%); opacity: 0; }
-    }
-    
-    /* アニメーション定義: 上→下 */
-    @keyframes roll-down-1 {
-      0% { transform: translate(-2%, -120%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(2%, calc(100vh + 120%)); opacity: 0; }
-    }
-    @keyframes roll-down-2 {
-      0% { transform: translate(2%, -120%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-2%, calc(100vh + 120%)); opacity: 0; }
-    }
-    @keyframes roll-down-3 {
-      0% { transform: translate(-1%, -120%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(1%, calc(100vh + 120%)); opacity: 0; }
-    }
-    @keyframes roll-down-4 {
-      0% { transform: translate(1%, -120%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-1%, calc(100vh + 120%)); opacity: 0; }
-    }
-    @keyframes roll-down-5 {
-      0% { transform: translate(0.5%, -120%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-0.5%, calc(100vh + 120%)); opacity: 0; }
-    }
-    
-    /* アニメーション定義: 下→上 */
-    @keyframes roll-up-1 {
-      0% { transform: translate(-1%, calc(100vh + 120%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(1%, -120%); opacity: 0; }
-    }
-    @keyframes roll-up-2 {
-      0% { transform: translate(1.5%, calc(100vh + 120%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-1.5%, -120%); opacity: 0; }
-    }
-    @keyframes roll-up-3 {
-      0% { transform: translate(-1.5%, calc(100vh + 120%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(1.5%, -120%); opacity: 0; }
-    }
-    @keyframes roll-up-4 {
-      0% { transform: translate(2%, calc(100vh + 120%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-2%, -120%); opacity: 0; }
-    }
-    @keyframes roll-up-5 {
-      0% { transform: translate(0%, calc(100vh + 120%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(0%, -120%); opacity: 0; }
-    }
-    
-    /* アニメーション定義: 斜め */
-    @keyframes roll-diagonal-br-1 {
-      0% { transform: translate(-120%, -125%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), calc(100vh + 115%)); opacity: 0; }
-    }
-    @keyframes roll-diagonal-br-2 {
-      0% { transform: translate(-120%, -115%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), calc(100vh + 125%)); opacity: 0; }
-    }
-    @keyframes roll-diagonal-bl-1 {
-      0% { transform: translate(calc(100vw + 120%), -122%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, calc(100vh + 118%)); opacity: 0; }
-    }
-    @keyframes roll-diagonal-bl-2 {
-      0% { transform: translate(calc(100vw + 120%), -118%); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, calc(100vh + 122%)); opacity: 0; }
-    }
-    @keyframes roll-diagonal-tr-1 {
-      0% { transform: translate(-120%, calc(100vh + 128%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), -112%); opacity: 0; }
-    }
-    @keyframes roll-diagonal-tr-2 {
-      0% { transform: translate(-120%, calc(100vh + 112%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(calc(100vw + 120%), -128%); opacity: 0; }
-    }
-    @keyframes roll-diagonal-tl {
-      0% { transform: translate(calc(100vw + 120%), calc(100vh + 121%)); opacity: 0; }
-      15% { opacity: 0.20; }
-      85% { opacity: 0.20; }
-      100% { transform: translate(-120%, -119%); opacity: 0; }
-    }
-    
-    @keyframes pulse-glow {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
-    }
-    
-    @keyframes slow-rotate {
-      0% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
-      50% { transform: rotate(-5deg) scale(1.1); opacity: 1; }
-      100% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
-    }
-    
-    .container {
-      position: relative;
-      z-index: 2;
-      max-width: 500px;
-      margin: var(--space-xl) auto;
+      padding: 20px;
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      color: #1A202C;
     }
 
-    /* Card - Glass Vibrant(モバイル最適) */
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+    }
+
     .card {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.35) 0%,
-          rgba(255, 255, 255, 0.05) 40%,
-          rgba(255, 255, 255, 0) 100%
-        ),
-        rgba(255, 255, 255, 0.70);
-      
-      backdrop-filter: blur(20px) saturate(1.2);
-      -webkit-backdrop-filter: blur(20px) saturate(1.2);
-      
-      box-shadow:
-        0 4px 8px rgba(0, 0, 0, 0.15),
-        0 12px 24px rgba(0, 0, 0, 0.12),
-        0 24px 48px rgba(0, 0, 0, 0.08),
-        inset 0 2px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-      
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: white;
       border-radius: 16px;
       padding: 32px 20px;
-      padding-bottom: max(32px, env(safe-area-inset-bottom));
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    /* Header - アイコンレス・日本的デザイン */
-    .header {
+    /* ========================================
+       Page 0: Loading
+       ======================================== */
+    .loading-screen {
       text-align: center;
-      margin-bottom: 32px;
+      padding: 40px 20px;
     }
 
-    .header-title {
-      font-size: var(--font-size-h2);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-main);
-      margin-bottom: 14px;
-      letter-spacing: var(--letter-spacing-heading);
-      line-height: var(--line-height-heading);
-      font-feature-settings: "palt" 1;
-    }
-
-    .header-divider {
-      width: 60px;
-      height: 2px;
-      background: var(--color-primary);
-      margin: 0 auto 18px;
-      opacity: 0.6;
-    }
-
-    .header-subtitle {
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-regular);
-      color: var(--color-text-sub);
-      line-height: var(--line-height-body-relaxed);
-      letter-spacing: var(--letter-spacing-body);
-      opacity: 0.9;
-    }
-
-    /* Buttons - モバイルファースト(タップ最適化) */
-    .btn {
-      width: 100%;
-      min-height: var(--button-height);
-      padding: 18px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-medium);
-      cursor: pointer;
-      letter-spacing: var(--letter-spacing-ui);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      touch-action: manipulation;
-      user-select: none;
-      line-height: var(--line-height-ui);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-xs);
-    }
-
-    /* タップ領域拡大(見えない) */
-    .btn::after {
-      content: '';
-      position: absolute;
-      top: calc(var(--space-tap-safe) * -1);
-      left: calc(var(--space-tap-safe) * -1);
-      right: calc(var(--space-tap-safe) * -1);
-      bottom: calc(var(--space-tap-safe) * -1);
-    }
-
-    /* メインボタン(Sky Blue・艶感) */
-    .btn-primary {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(56, 189, 248, 0.3) 0%,
-          rgba(14, 165, 233, 0.2) 30%,
-          transparent 100%
-        ),
-        rgba(2, 132, 199, 0.90);
-      
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      color: var(--color-white);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      
-      box-shadow: 
-        0 2px 8px rgba(2, 132, 199, 0.3),
-        0 8px 24px rgba(2, 132, 199, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        inset 0 -1px 0 rgba(12, 74, 110, 0.3);
-      
-      margin-bottom: var(--space-element);
-    }
-    
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-      pointer-events: none;
-    }
-    
-    .btn-primary:active::before {
-      left: 100%;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(56, 189, 248, 0.4) 0%,
-          rgba(14, 165, 233, 0.3) 30%,
-          transparent 100%
-        ),
-        rgba(7, 89, 133, 0.95);
-      transform: translateY(-2px);
-      box-shadow: 
-        0 4px 12px rgba(2, 132, 199, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-
-    .btn-primary:active {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(56, 189, 248, 0.4) 0%,
-          rgba(14, 165, 233, 0.3) 30%,
-          transparent 100%
-        ),
-        rgba(7, 89, 133, 0.95);
-      transform: scale(0.98);
-      box-shadow: 
-        0 1px 4px rgba(2, 132, 199, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    /* LINE緑ボタン */
-    .btn-success,
-    .btn-line {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(45, 209, 112, 0.3) 0%,
-          rgba(6, 199, 85, 0.2) 30%,
-          transparent 100%
-        ),
-        rgba(6, 199, 85, 0.90);
-      
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      color: var(--color-white);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      
-      box-shadow: 
-        0 2px 8px rgba(6, 199, 85, 0.3),
-        0 8px 24px rgba(6, 199, 85, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        inset 0 -1px 0 rgba(5, 166, 83, 0.3);
-      
-      margin-top: var(--space-md);
-    }
-    
-    .btn-success::before,
-    .btn-line::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-      pointer-events: none;
-    }
-    
-    .btn-success:active::before,
-    .btn-line:active::before {
-      left: 100%;
-    }
-
-    .btn-success:hover:not(:disabled),
-    .btn-line:hover:not(:disabled) {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(45, 209, 112, 0.4) 0%,
-          rgba(6, 199, 85, 0.3) 30%,
-          transparent 100%
-        ),
-        rgba(5, 166, 83, 0.95);
-      transform: translateY(-2px);
-      box-shadow: 
-        0 4px 12px rgba(6, 199, 85, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-
-    .btn-success:active,
-    .btn-line:active {
-      background: 
-        linear-gradient(
-          180deg,
-          rgba(45, 209, 112, 0.4) 0%,
-          rgba(6, 199, 85, 0.3) 30%,
-          transparent 100%
-        ),
-        rgba(5, 166, 83, 0.95);
-      transform: scale(0.98);
-      box-shadow: 
-        0 1px 4px rgba(6, 199, 85, 0.3),
-        inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    #fileInput {
-      display: none;
-    }
-
-    /* File List - モバイル最適(スクロール・タップ) */
-    .file-list {
-      margin-top: var(--space-md);
-      display: none;
-      max-height: calc(100vh - 450px);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-    }
-
-    .file-list-header {
-      background: transparent;
-      padding: var(--space-element);
-      border-radius: 0;
-      margin-bottom: var(--space-element);
-      font-size: var(--font-size-small);
-      text-align: center;
-      color: var(--color-text-sub);
-      border-bottom: 1px dotted #CBD5E0;
-      position: sticky;
-      top: 0;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      z-index: 10;
-    }
-
-    .file-list-header strong {
-      color: var(--color-text-main);
-      font-weight: var(--font-weight-semibold);
-    }
-
-    .file-list-header small {
-      color: var(--color-text-sub);
-      font-size: var(--font-size-xs);
-    }
-
-    .file-item {
-      background: 
-        linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.5) 0%,
-          rgba(255, 255, 255, 0.2) 50%,
-          rgba(255, 255, 255, 0.4) 100%
-        ),
-        rgba(255, 255, 255, 0.4);
-      
-      backdrop-filter: blur(10px) saturate(1.15);
-      -webkit-backdrop-filter: blur(10px) saturate(1.15);
-      
-      box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.12),
-        0 6px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.7),
-        inset 1px 0 0 rgba(255, 255, 255, 0.3),
-        inset -1px 0 0 rgba(0, 0, 0, 0.03);
-      
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 12px;
-      min-height: 64px;
-      padding: 16px 20px;
-      margin-bottom: var(--space-compact);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      touch-action: manipulation;
-    }
-
-    .file-item:hover {
-      background: 
-        linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.6) 0%,
-          rgba(255, 255, 255, 0.3) 50%,
-          rgba(255, 255, 255, 0.5) 100%
-        ),
-        rgba(255, 255, 255, 0.5);
-      border-color: rgba(255, 255, 255, 0.8);
-    }
-
-    .file-item:active {
-      background: 
-        linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.6) 0%,
-          rgba(255, 255, 255, 0.3) 50%,
-          rgba(2, 132, 199, 0.1) 100%
-        ),
-        rgba(255, 255, 255, 0.5);
-      transform: scale(0.98);
-    }
-
-    .file-item-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .file-item-name {
-      font-weight: var(--font-weight-medium);
-      color: var(--color-text-main);
-      font-size: var(--font-size-body);
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .file-item-size {
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-regular);
-      color: #A0AEC0;
-      letter-spacing: var(--letter-spacing-body);
-    }
-
-    .file-item-remove {
-      background: none;
-      border: none;
-      color: var(--color-text-sub);
-      font-size: var(--font-size-small);
-      font-weight: var(--font-weight-medium);
-      cursor: pointer;
-      min-width: var(--tap-target-min);
-      min-height: var(--tap-target-min);
-      padding: 12px;
-      margin: -12px -8px -12px 8px;
-      transition: color 0.2s;
-      touch-action: manipulation;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .file-item-remove:hover {
-      color: var(--color-error);
-    }
-
-    .file-item-remove:active {
-      color: var(--color-primary);
-      transform: scale(0.95);
-    }
-
-    .file-add-more {
-      width: 100%;
-      background: rgba(2, 132, 199, 0.1);
-      color: var(--color-primary);
-      border: 2px dashed var(--color-primary);
-      border-radius: var(--radius-md);
-      padding: var(--space-sm);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-semibold);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: var(--space-sm);
-      min-height: var(--tap-target-min);
-      touch-action: manipulation;
-    }
-
-    .file-add-more:hover {
-      background: rgba(2, 132, 199, 0.15);
-      border-color: var(--color-primary-dark);
-    }
-
-    .file-add-more:active {
-      transform: scale(0.98);
-    }
-
-    /* Progress Bar - 光の流れ */
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: 
-        linear-gradient(
-          90deg,
-          rgba(226, 232, 240, 0.5) 0%,
-          rgba(226, 232, 240, 0.8) 50%,
-          rgba(226, 232, 240, 0.5) 100%
-        );
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: var(--space-md);
-      display: none;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: 
-        linear-gradient(
-          90deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.6) 50%,
-          transparent 100%
-        ),
-        linear-gradient(
-          90deg,
-          #0284C7 0%,
-          #38BDF8 50%,
-          #0284C7 100%
-        );
-      background-size: 200% 100%;
-      
-      box-shadow:
-        0 0 8px rgba(2, 132, 199, 0.4),
-        0 0 16px rgba(2, 132, 199, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-      
-      border-radius: 4px;
-      width: 0%;
-      transition: width 0.3s ease;
-      animation: shimmer 2s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -100% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    /* Status Messages */
-    .status {
-      margin-top: var(--space-md);
-      padding: var(--space-sm) var(--space-md);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-body);
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .status-info {
-      background: rgba(2, 132, 199, 0.1);
-      color: var(--color-primary-dark);
-      border-left: 4px solid var(--color-primary);
-    }
-
-    .status-success {
-      background: rgba(6, 199, 85, 0.1);
-      color: #065F46;
-      border-left: 4px solid var(--color-line);
-    }
-
-    .status-error {
-      background: rgba(239, 68, 68, 0.1);
-      color: #991B1B;
-      border-left: 4px solid var(--color-error);
-    }
-
-    /* Loading Screen - Morphing Dots */
-    .loading {
-      text-align: center;
-      padding: 48px 20px;
-    }
-
-    .loading-dots {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-
-    .loading-dot {
-      width: 16px;
-      height: 16px;
-      background: radial-gradient(circle, #38BDF8 0%, #0284C7 100%);
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #E2E8F0;
+      border-top: 3px solid #0284C7;
       border-radius: 50%;
-      box-shadow:
-        0 2px 8px rgba(2, 132, 199, 0.3),
-        0 0 20px rgba(2, 132, 199, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      animation: morph 1.4s ease-in-out infinite;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
     }
 
-    .loading-dot:nth-child(1) { animation-delay: 0s; }
-    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes morph {
-      0%, 100% {
-        transform: scale(1) translateY(0);
-        opacity: 0.7;
-      }
-      50% {
-        transform: scale(1.3) translateY(-8px);
-        opacity: 1;
-        box-shadow:
-          0 4px 12px rgba(2, 132, 199, 0.5),
-          0 0 30px rgba(2, 132, 199, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    .loading p {
-      font-family: -apple-system, "SF Pro Display", sans-serif;
-      font-size: var(--font-size-small);
-      font-weight: var(--font-weight-medium);
-      color: var(--color-text-sub);
-      letter-spacing: var(--letter-spacing-en);
-      line-height: var(--line-height-ui);
+    .loading-text {
+      font-size: 14px;
+      color: #64748B;
     }
 
-    /* Login Screen */
+    /* ========================================
+       Page 1: Login
+       ======================================== */
     .login-screen {
       text-align: center;
-      padding: var(--space-md);
+      padding: 20px;
     }
 
     .login-title {
       font-size: 24px;
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-main);
-      margin-bottom: var(--space-md);
-      letter-spacing: var(--letter-spacing-heading);
+      font-weight: 600;
+      color: #1A202C;
+      margin-bottom: 16px;
     }
 
     .login-description {
-      font-size: var(--font-size-body);
-      color: var(--color-text-sub);
-      line-height: var(--line-height-body-relaxed);
-      margin-bottom: var(--space-lg);
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.7;
+      margin-bottom: 24px;
     }
 
     .btn-login {
-      background: var(--color-line);
+      background: #06C755;
       color: white;
       padding: 14px 32px;
       border: none;
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-sm);
       box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
-      transition: all 0.2s ease;
-      min-height: var(--tap-target-min);
-      touch-action: manipulation;
-    }
-
-    .btn-login:hover {
-      background: var(--color-line-dark);
-      box-shadow: 0 6px 16px rgba(6, 199, 85, 0.4);
-      transform: translateY(-2px);
+      transition: all 0.2s;
     }
 
     .btn-login:active {
@@ -1049,71 +106,272 @@
     }
 
     .login-hint {
-      margin-top: var(--space-lg);
-      padding: var(--space-md);
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-small);
-      color: var(--color-text-sub);
-      line-height: var(--line-height-body-relaxed);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      margin-top: 20px;
+      padding: 16px;
+      background: #F8FAFC;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #64748B;
     }
 
-    .login-hint strong {
+    /* ========================================
+       Page 2, 3, 4: Main Screen
+       ======================================== */
+    .main-screen {
+      display: none;
+    }
+
+    .main-screen.active {
       display: block;
-      color: var(--color-text-main);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-semibold);
-      margin-bottom: var(--space-xs);
     }
 
-    .device-info {
-      margin-top: var(--space-md);
-      padding: var(--space-sm) var(--space-md);
-      background: rgba(2, 132, 199, 0.1);
-      border-left: 4px solid var(--color-primary);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-small);
-      color: var(--color-primary-dark);
-      line-height: var(--line-height-body);
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    /* Debug */
-    .debug {
-      margin-top: var(--space-md);
-      padding: var(--space-sm);
-      background: rgba(243, 244, 246, 0.8);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 11px;
-      font-family: 'Courier New', monospace;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 200px;
-      overflow-y: auto;
-      color: var(--color-text-sub);
-      -webkit-overflow-scrolling: touch;
+    .header-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1A202C;
+      margin-bottom: 8px;
     }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      body {
-        padding: var(--space-sm);
-      }
-
-      .container {
-        margin: var(--space-md) auto;
-      }
-
-      .card {
-        padding: var(--space-md);
-      }
-
-      .header-title {
-        font-size: 20px;
-      }
+    .header-subtitle {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.7;
     }
 
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #0284C7;
+      color: white;
+    }
+
+    .btn-upload {
+      background: #10B981;
+      color: white;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* ========================================
+       Page 3: File List
+       ======================================== */
+    .file-list {
+      margin: 20px 0;
+      display: none;
+    }
+
+    .file-list.active {
+      display: block;
+    }
+
+    .file-list-header {
+      text-align: center;
+      padding: 12px;
+      background: #F0F9FF;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #0284C7;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .file-item {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #1A202C;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .file-remove {
+      background: #EF4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .file-remove:active {
+      transform: scale(0.95);
+    }
+
+    /* ========================================
+       Page 4: Progress
+       ======================================== */
+    .progress-container {
+      margin: 24px 0;
+      display: none;
+    }
+
+    .progress-container.active {
+      display: block;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #0284C7;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 13px;
+      color: #64748B;
+    }
+
+    .status-message {
+      text-align: center;
+      padding: 12px;
+      background: #E0EAFF;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #0C4A6E;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .status-message.active {
+      display: block;
+    }
+
+    /* ========================================
+       Page 5: Complete
+       ======================================== */
+    .complete-screen {
+      text-align: center;
+      padding: 32px 20px;
+      display: none;
+    }
+
+    .complete-screen.active {
+      display: block;
+    }
+
+    .complete-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1A202C;
+      margin-bottom: 16px;
+    }
+
+    .complete-divider {
+      width: 80px;
+      height: 1px;
+      background: #CBD5E0;
+      margin: 0 auto 20px;
+    }
+
+    .complete-message {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .btn-line {
+      background: #06C755;
+      color: white;
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-line:active {
+      transform: scale(0.98);
+    }
+
+    /* ========================================
+       Error Display
+       ======================================== */
+    .error-screen {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+
+    .error-screen.active {
+      display: block;
+    }
+
+    .error-title {
+      font-size: 20px;
+      color: #EF4444;
+      margin-bottom: 12px;
+    }
+
+    .error-message {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       Responsive
+       ======================================== */
     @media (min-width: 480px) {
       .card {
         padding: 40px 32px;
@@ -1126,54 +384,78 @@
   </style>
 </head>
 <body>
-  <div class="bg-wave"></div>
-  
-  <div class="math-pattern">
-    <!-- 横方向(10個) -->
-    <span class="math-symbol">π</span>
-    <span class="math-symbol">∑</span>
-    <span class="math-symbol math-equation">E = mc²</span>
-    <span class="math-symbol">∫</span>
-    <span class="math-symbol math-equation">F = ma</span>
-    <span class="math-symbol">θ</span>
-    <span class="math-symbol math-equation">y = mx + b</span>
-    <span class="math-symbol">Δ</span>
-    <span class="math-symbol math-equation">dy/dx</span>
-    <span class="math-symbol">α</span>
-    
-    <!-- 縦方向(10個) -->
-    <span class="math-symbol">√</span>
-    <span class="math-symbol math-equation">f(x) = x²</span>
-    <span class="math-symbol">λ</span>
-    <span class="math-symbol math-equation">v = v₀ + at</span>
-    <span class="math-symbol">∂</span>
-    <span class="math-symbol">β</span>
-    <span class="math-symbol">γ</span>
-    <span class="math-symbol">∞</span>
-    <span class="math-symbol math-equation">a² + b² = c²</span>
-    <span class="math-symbol">ω</span>
-    
-    <!-- 斜め(7個) -->
-    <span class="math-symbol math-equation">sin²θ + cos²θ = 1</span>
-    <span class="math-symbol math-equation">dx/dt = v(t)</span>
-    <span class="math-symbol math-equation">A = πr²</span>
-    <span class="math-symbol math-equation">dy/dx = f'(x)</span>
-    <span class="math-symbol math-equation">∫f(x)dx</span>
-    <span class="math-symbol math-equation">PV = nRT</span>
-    <span class="math-symbol math-equation">x² + y² = r²</span>
-  </div>
-  
-  <div class="bg-gloss"></div>
-  
   <div class="container">
-    <div class="card">
-      <div class="loading">
-        <div class="loading-dots">
-          <div class="loading-dot"></div>
-          <div class="loading-dot"></div>
-          <div class="loading-dot"></div>
+    <div class="card" id="app">
+      <!-- Page 0: Loading -->
+      <div class="loading-screen" id="page-loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">LIFF初期化中...</p>
+      </div>
+
+      <!-- Page 1: Login -->
+      <div class="login-screen" id="page-login" style="display:none;">
+        <h2 class="login-title">LINEでログイン</h2>
+        <p class="login-description">
+          このサービスを利用するには<br>
+          LINEアカウントでのログインが必要です
+        </p>
+        <button class="btn-login" onclick="doLogin()">LINEでログイン</button>
+        <div class="login-hint" id="login-hint" style="display:none;">
+          <p>QRコードまたはメール/パスワードでログイン可能です</p>
         </div>
-        <p>Loading...</p>
+      </div>
+
+      <!-- Page 2, 3, 4: Main Screen -->
+      <div class="main-screen" id="page-main">
+        <div class="header">
+          <h2 class="header-title">PDF文字起こし</h2>
+          <p class="header-subtitle">
+            教科書やプリントを<br>
+            簡単にテキスト化できます
+          </p>
+        </div>
+
+        <input type="file" id="fileInput" accept="application/pdf" multiple>
+        
+        <button class="btn btn-primary" id="selectBtn">
+          ファイルを選択
+        </button>
+
+        <!-- Page 3: File List -->
+        <div class="file-list" id="fileList"></div>
+
+        <button class="btn btn-upload" id="uploadBtn" style="display:none;">
+          アップロードする
+        </button>
+
+        <!-- Page 4: Progress -->
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="progress-text" id="progressText">PDFを変換しています...</p>
+        </div>
+
+        <div class="status-message" id="statusMessage"></div>
+      </div>
+
+      <!-- Page 5: Complete -->
+      <div class="complete-screen" id="page-complete">
+        <h3 class="complete-title">処理が完了しました</h3>
+        <div class="complete-divider"></div>
+        <p class="complete-message">
+          LINEのトークで結果をお待ちください<br>
+          通常1-2分ほどで届きます
+        </p>
+        <button class="btn btn-line" id="btnCloseLiff" style="display:none;" onclick="closeLiffWindow()">
+          LINEに戻る
+        </button>
+      </div>
+
+      <!-- Error Screen -->
+      <div class="error-screen" id="page-error">
+        <h3 class="error-title">エラー</h3>
+        <p class="error-message" id="errorMessage"></p>
       </div>
     </div>
   </div>
@@ -1190,324 +472,220 @@
 
     let currentUserId = null;
     let currentDisplayName = null;
-    let debugLogs = [];
     let selectedFiles = [];
+
+    // ========================================
+    // ページ切り替え
+    // ========================================
+    function showPage(pageName) {
+      const pages = ['page-loading', 'page-login', 'page-main', 'page-complete', 'page-error'];
+      pages.forEach(page => {
+        const element = document.getElementById(page);
+        if (element) {
+          element.style.display = 'none';
+        }
+      });
+      
+      const targetPage = document.getElementById(pageName);
+      if (targetPage) {
+        targetPage.style.display = 'block';
+      }
+      
+      if (pageName === 'page-main') {
+        targetPage.classList.add('active');
+      }
+    }
 
     // ========================================
     // デバイス判定
     // ========================================
     function isPC() {
       const ua = navigator.userAgent;
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
-      return !isMobile;
+      return !/iPhone|iPad|iPod|Android/i.test(ua);
     }
-
-    function getDeviceType() {
-      if (/iPhone|iPod/i.test(navigator.userAgent)) return 'iPhone';
-      if (/iPad/i.test(navigator.userAgent)) return 'iPad';
-      if (/Android/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent)) return 'Android Phone';
-      if (/Android/i.test(navigator.userAgent)) return 'Android Tablet';
-      return 'PC';
-    }
-
-    // ========================================
-    // デバッグログ
-    // ========================================
-    function debugLog(message) {
-      const timestamp = new Date().toLocaleTimeString();
-      const logMessage = `[${timestamp}] ${message}`;
-      debugLogs.push(logMessage);
-      console.log(logMessage);
-      
-      if (DEBUG_MODE) {
-        updateDebugDisplay();
-      }
-    }
-
-    function updateDebugDisplay() {
-      let debugDiv = document.getElementById('debugInfo');
-      if (!debugDiv && DEBUG_MODE) {
-        debugDiv = document.createElement('div');
-        debugDiv.id = 'debugInfo';
-        debugDiv.className = 'debug';
-        document.querySelector('.card').appendChild(debugDiv);
-      }
-      if (debugDiv) {
-        debugDiv.textContent = debugLogs.join('\n');
-      }
-    }
-
-    window.addEventListener('error', function(e) {
-      debugLog('❌ エラー発生: ' + e.message);
-      showStatus('❌ エラー: ' + e.message, 'error');
-    });
 
     // ========================================
     // LIFF初期化
     // ========================================
     window.addEventListener('DOMContentLoaded', function() {
-      debugLog('DOMContentLoaded');
-      debugLog('LIFF ID: ' + LIFF_ID);
-      debugLog('Device Type: ' + getDeviceType());
+      console.log('DOMContentLoaded');
       
       if (typeof liff === 'undefined') {
-        debugLog('❌ LIFF SDKが読み込まれていません');
         showError('LIFF SDKの読み込みに失敗しました');
         return;
       }
-
-      debugLog('✅ LIFF SDK読み込み成功');
-      debugLog('LIFF初期化開始...');
 
       liff.init({ 
         liffId: LIFF_ID,
         withLoginOnExternalBrowser: true
       })
       .then(() => {
-        debugLog('✅ LIFF初期化成功');
+        console.log('LIFF初期化成功');
         
         if (!liff.isLoggedIn()) {
-          debugLog('未ログイン状態を検出');
+          console.log('未ログイン → ログイン画面表示');
+          showPage('page-login');
           
           if (isPC()) {
-            debugLog('PCブラウザを検出 → ログイン画面表示');
-            showLoginScreen();
-          } else {
-            debugLog('モバイル端末を検出 → 自動ログイン');
-            liff.login();
+            document.getElementById('login-hint').style.display = 'block';
           }
           return;
         }
 
-        debugLog('ログイン済み → プロフィール取得');
+        console.log('ログイン済み → プロフィール取得');
         return liff.getProfile();
       })
       .then((profile) => {
-        if (!profile) {
-          debugLog('プロフィール取得失敗(ログイン処理中)');
-          return;
-        }
+        if (!profile) return;
         
         currentUserId = profile.userId;
         currentDisplayName = profile.displayName;
         
-        debugLog('✅ User ID: ' + currentUserId);
-        debugLog('✅ Display Name: ' + currentDisplayName);
-        debugLog('アプリUI表示開始');
+        console.log('User ID:', currentUserId);
+        console.log('Display Name:', currentDisplayName);
         
-        renderApp();
+        showMainScreen();
       })
       .catch((err) => {
-        debugLog('❌ LIFF初期化エラー: ' + err.message);
-        console.error('LIFF Error:', err);
+        console.error('LIFF初期化エラー:', err);
         showError('LIFF初期化に失敗しました: ' + err.message);
       });
     });
 
     // ========================================
-    // ログイン画面
+    // ログイン処理
     // ========================================
-    function showLoginScreen() {
-      const deviceType = getDeviceType();
-      
-      document.querySelector('.card').innerHTML = `
-        <div class="login-screen">
-          <h2 class="login-title">LINEでログイン</h2>
-          <p class="login-description">
-            このサービスを利用するには<br>
-            LINEアカウントでのログインが必要です
-          </p>
-          
-          <button class="btn-login" onclick="doLogin()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-            </svg>
-            LINEでログイン
-          </button>
-          
-          <div class="login-hint">
-            <strong>ログイン方法</strong>
-            ${deviceType === 'PC' ? `
-              <p style="margin: 10px 0;">
-                <strong>方法1: QRコード</strong><br>
-                スマートフォンのLINEアプリでQRコードを読み取ってログイン
-              </p>
-              <p style="margin: 10px 0;">
-                <strong>方法2: メール/パスワード</strong><br>
-                LINEに登録したメールアドレスとパスワードでログイン
-              </p>
-            ` : `
-              <p>LINEアプリでログインします</p>
-            `}
-          </div>
-          
-          ${isPC() ? `<div class="device-info" style="margin-top: 20px;">検出デバイス: ${deviceType}<br>次回以降は自動ログインされます</div>` : ''}
-        </div>
-        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
-      `;
-      
-      updateDebugDisplay();
-    }
-
     function doLogin() {
-      debugLog('ログインボタンクリック');
-      debugLog('liff.login() 実行開始...');
-      
+      console.log('ログイン実行');
       try {
         liff.login();
       } catch (error) {
-        debugLog('❌ ログインエラー: ' + error.message);
-        showStatus('ログインに失敗しました: ' + error.message, 'error');
+        console.error('ログインエラー:', error);
+        showError('ログインに失敗しました: ' + error.message);
       }
     }
 
     // ========================================
-    // アプリUI表示
+    // メイン画面表示（Page 2）
     // ========================================
-    function renderApp() {
-      document.querySelector('.card').innerHTML = `
-        <div class="header">
-          <h2 class="header-title">PDF文字起こし</h2>
-          <div class="header-divider"></div>
-          <p class="header-subtitle">教科書・プリントを簡単にテキスト化できます</p>
-        </div>
-        
-        <input type="file" id="fileInput" accept="application/pdf" multiple>
-        
-        <button class="btn btn-primary" id="selectBtn">
-          PDFファイルを選択
-        </button>
-        
-        <div class="file-list" id="fileList"></div>
-        
-        <button class="btn btn-success" id="uploadBtn" style="display:none;">
-          まとめてアップロード (<span id="fileCount">0</span>件)
-        </button>
-        
-        <div class="progress-bar" id="progressBar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        
-        <div class="status" id="status"></div>
-        
-        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
-      `;
-
+    function showMainScreen() {
+      showPage('page-main');
+      
       document.getElementById('selectBtn').addEventListener('click', selectFile);
       document.getElementById('fileInput').addEventListener('change', handleFileSelect);
       document.getElementById('uploadBtn').addEventListener('click', uploadFiles);
       
-      updateDebugDisplay();
-      debugLog('✅ UI表示完了');
+      console.log('メイン画面表示完了');
     }
 
     // ========================================
-    // ファイル操作
+    // ファイル選択
     // ========================================
     function selectFile() {
-      debugLog('ファイル選択ボタンクリック');
+      console.log('ファイル選択ダイアログ起動');
       document.getElementById('fileInput').click();
     }
 
     function handleFileSelect(event) {
       const files = Array.from(event.target.files);
-      debugLog(`${files.length}個のファイルが選択されました`);
+      console.log(`${files.length}個のファイルが選択されました`);
 
       if (selectedFiles.length + files.length > MAX_FILES) {
-        showStatus(`❌ 最大${MAX_FILES}ファイルまでです`, 'error');
+        alert(`最大${MAX_FILES}ファイルまでです`);
         return;
       }
 
       for (const file of files) {
         if (file.type !== 'application/pdf') {
-          showStatus(`❌ ${file.name}はPDFファイルではありません`, 'error');
+          alert(`${file.name}はPDFファイルではありません`);
           continue;
         }
 
         if (file.size > MAX_FILE_SIZE) {
-          showStatus(`❌ ${file.name}は10MBを超えています`, 'error');
+          alert(`${file.name}は10MBを超えています`);
           continue;
         }
 
         if (selectedFiles.some(f => f.name === file.name)) {
-          showStatus(`⚠️ ${file.name}は既に追加されています`, 'error');
+          alert(`${file.name}は既に追加されています`);
           continue;
         }
 
         selectedFiles.push(file);
-        debugLog(`追加: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+        console.log(`追加: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
       }
 
       updateFileList();
       event.target.value = '';
     }
 
+    // ========================================
+    // ファイルリスト更新（Page 3）
+    // ========================================
     function updateFileList() {
       const fileListDiv = document.getElementById('fileList');
       const uploadBtn = document.getElementById('uploadBtn');
-      const fileCountSpan = document.getElementById('fileCount');
 
       if (selectedFiles.length === 0) {
-        fileListDiv.style.display = 'none';
+        fileListDiv.classList.remove('active');
         uploadBtn.style.display = 'none';
         return;
       }
 
-      fileListDiv.style.display = 'block';
-      uploadBtn.style.display = 'flex';
-      fileCountSpan.textContent = selectedFiles.length;
+      fileListDiv.classList.add('active');
+      uploadBtn.style.display = 'block';
 
       const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
       
       fileListDiv.innerHTML = `
         <div class="file-list-header">
-          <strong>選択中のファイル (${selectedFiles.length}/${MAX_FILES}件)</strong><br>
-          <small>合計サイズ: ${(totalSize / 1024 / 1024).toFixed(2)} MB</small>
+          選択中のファイル (${selectedFiles.length}/${MAX_FILES}件) - ${(totalSize / 1024 / 1024).toFixed(2)} MB
         </div>
         ${selectedFiles.map((file, index) => `
           <div class="file-item">
-            <div class="file-item-info">
-              <div class="file-item-name">${file.name}</div>
-              <div class="file-item-size">${(file.size / 1024).toFixed(2)} KB</div>
+            <div class="file-info">
+              <div class="file-name">${file.name}</div>
+              <div class="file-size">${(file.size / 1024).toFixed(2)} KB</div>
             </div>
-            <button class="file-item-remove" onclick="removeFile(${index})">削除</button>
+            <button class="file-remove" onclick="removeFile(${index})">削除</button>
           </div>
         `).join('')}
-        <button class="file-add-more" onclick="selectFile()">
-          ファイルを追加
-        </button>
       `;
     }
 
     function removeFile(index) {
       const fileName = selectedFiles[index].name;
       selectedFiles.splice(index, 1);
-      debugLog(`削除: ${fileName}`);
+      console.log(`削除: ${fileName}`);
       updateFileList();
     }
 
     // ========================================
-    // アップロード
+    // アップロード処理（Page 4）
     // ========================================
     async function uploadFiles() {
       if (selectedFiles.length === 0) {
-        showStatus('❌ ファイルが選択されていません', 'error');
+        alert('ファイルが選択されていません');
         return;
       }
 
-      debugLog(`アップロード開始: ${selectedFiles.length}ファイル`);
+      console.log(`アップロード開始: ${selectedFiles.length}ファイル`);
       
-      document.getElementById('uploadBtn').disabled = true;
       document.getElementById('selectBtn').disabled = true;
-      showStatus(`📤 ${selectedFiles.length}件のファイルをアップロード中...`, 'info');
-      showProgress(10);
+      document.getElementById('uploadBtn').disabled = true;
+      
+      const progressContainer = document.getElementById('progressContainer');
+      const statusMessage = document.getElementById('statusMessage');
+      progressContainer.classList.add('active');
+      statusMessage.classList.add('active');
+      
+      showProgress(10, 'ファイルを準備中...');
 
       try {
         const filesData = [];
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
-          showStatus(`🔄 変換中... (${i + 1}/${selectedFiles.length})`, 'info');
-          showProgress(10 + (i / selectedFiles.length) * 40);
+          showProgress(10 + (i / selectedFiles.length) * 40, `変換中... (${i + 1}/${selectedFiles.length})`);
           
           const base64 = await fileToBase64(file);
           filesData.push({
@@ -1516,11 +694,11 @@
             fileSize: file.size
           });
           
-          debugLog(`Base64変換完了: ${file.name}`);
+          console.log(`Base64変換完了: ${file.name}`);
         }
 
-        showProgress(60);
-        debugLog('全ファイルの変換完了。Workersに送信...');
+        showProgress(60, 'サーバーに送信中...');
+        console.log('Workersに送信...');
 
         const response = await fetch(WORKER_URL, {
           method: 'POST',
@@ -1534,127 +712,41 @@
           })
         });
 
-        showProgress(90);
-        debugLog('レスポンス受信: ' + response.status);
+        showProgress(90, 'レスポンス受信中...');
+        console.log('レスポンス受信:', response.status);
 
         if (!response.ok) {
           const errorData = await response.text();
-          debugLog('エラーレスポンス: ' + errorData);
           throw new Error(`アップロード失敗 (${response.status}): ${errorData}`);
         }
 
         const result = await response.json();
-        debugLog('アップロード成功: ' + JSON.stringify(result));
-        showProgress(100);
+        console.log('アップロード成功:', result);
         
-        debugLog('処理完了 - 1秒後にボタン表示');
+        showProgress(100, '完了');
         
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        debugLog('showCloseButton()を実行');
-        showCloseButton();
+        showCompletePage();
 
       } catch (error) {
-        debugLog('❌ エラー: ' + error.message);
-        console.error('Upload Error:', error);
-        showStatus('❌ エラー: ' + error.message, 'error');
-        document.getElementById('uploadBtn').disabled = false;
+        console.error('エラー:', error);
+        showError('エラー: ' + error.message);
         document.getElementById('selectBtn').disabled = false;
-        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
       }
     }
 
-    // ========================================
-    // 「LINEに戻る」ボタン表示
-    // ========================================
-    function showCloseButton() {
-      debugLog('「LINEに戻る」ボタン表示');
-      
-      const statusDiv = document.getElementById('status');
-      if (!statusDiv) return;
-      
-      const isInLiffBrowser = liff.isInClient();
-      debugLog(`環境判定: isInClient=${isInLiffBrowser}`);
-      
-      if (isInLiffBrowser) {
-        statusDiv.className = 'status status-success';
-        statusDiv.style.display = 'block';
-        statusDiv.innerHTML = `
-          <div style="text-align: center; padding: 20px;">
-            <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
-            <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #065F46;">
-              処理完了しました!
-            </div>
-            <div style="font-size: 14px; color: #047857; line-height: 1.7;">
-              LINEアプリを開いて<br>結果を確認してください
-            </div>
-          </div>
-        `;
-        
-        const uploadBtn = document.getElementById('uploadBtn');
-        const selectBtn = document.getElementById('selectBtn');
-        if (uploadBtn) uploadBtn.disabled = false;
-        if (selectBtn) selectBtn.disabled = false;
-      }
-    }
-
-    // ========================================
-    // LINEウィンドウを閉じる
-    // ========================================
-    function closeLiffWindow() {
-      debugLog('「LINEに戻る」ボタンがクリックされました');
-      
-      if (liff.isInClient()) {
-        debugLog('liff.closeWindow() 実行');
-        try {
-          liff.closeWindow();
-          debugLog('✅ closeWindow() 実行成功');
-        } catch (error) {
-          debugLog('❌ closeWindow() エラー: ' + error.message);
-          showStatus('画面左上の「×」ボタンで閉じてください', 'info');
-        }
-      } else {
-        debugLog('外部ブラウザのため closeWindow() はスキップ');
-        showStatus('LINEアプリを開いて結果を確認してください', 'info');
-      }
-    }
-
-    // ========================================
-    // ユーティリティ関数
-    // ========================================
-    function showStatus(message, type = 'info') {
-      const statusDiv = document.getElementById('status');
-      if (statusDiv) {
-        statusDiv.style.display = 'block';
-        statusDiv.className = `status status-${type}`;
-        statusDiv.textContent = message;
-      }
-      debugLog('Status: ' + message);
-    }
-
-    function showProgress(percent) {
-      const progressBar = document.getElementById('progressBar');
+    function showProgress(percent, message) {
       const progressFill = document.getElementById('progressFill');
-      if (progressBar && progressFill) {
-        progressBar.style.display = 'block';
-        progressFill.style.width = percent + '%';
-      }
-      debugLog('Progress: ' + percent + '%');
-    }
-
-    function showError(message) {
-      document.querySelector('.card').innerHTML = `
-        <div class="header">
-          <h2 class="header-title">エラー</h2>
-          <div class="header-divider"></div>
-          <p class="header-subtitle">LIFF初期化に失敗しました</p>
-        </div>
-        <div class="status status-error" style="display:block;">
-          ${message}
-        </div>
-        ${DEBUG_MODE ? '<div class="debug" id="debugInfo"></div>' : ''}
-      `;
-      updateDebugDisplay();
+      const progressText = document.getElementById('progressText');
+      const statusMessage = document.getElementById('statusMessage');
+      
+      if (progressFill) progressFill.style.width = percent + '%';
+      if (progressText) progressText.textContent = message || 'PDFを変換しています...';
+      if (statusMessage) statusMessage.textContent = message;
+      
+      console.log(`Progress: ${percent}% - ${message}`);
     }
 
     function fileToBase64(file) {
@@ -1665,40 +757,55 @@
           resolve(base64);
         };
         reader.onerror = (error) => {
-          debugLog('FileReader Error: ' + error);
+          console.error('FileReader Error:', error);
           reject(error);
         };
         reader.readAsDataURL(file);
       });
     }
+
+    // ========================================
+    // 完了画面表示（Page 5）
+    // ========================================
+    function showCompletePage() {
+      console.log('完了画面表示');
+      showPage('page-complete');
+      
+      const isInLiffBrowser = liff.isInClient();
+      const btnCloseLiff = document.getElementById('btnCloseLiff');
+      
+      if (isInLiffBrowser) {
+        btnCloseLiff.style.display = 'block';
+      } else {
+        btnCloseLiff.style.display = 'none';
+      }
+    }
+
+    function closeLiffWindow() {
+      console.log('LINEに戻る');
+      
+      if (liff.isInClient()) {
+        try {
+          liff.closeWindow();
+          console.log('closeWindow() 実行成功');
+        } catch (error) {
+          console.error('closeWindow() エラー:', error);
+          alert('画面左上の「×」ボタンで閉じてください');
+        }
+      } else {
+        console.log('外部ブラウザのため closeWindow() はスキップ');
+        alert('LINEアプリを開いて結果を確認してください');
+      }
+    }
+
+    // ========================================
+    // エラー表示
+    // ========================================
+    function showError(message) {
+      showPage('page-error');
+      document.getElementById('errorMessage').textContent = message;
+      console.error('Error:', message);
+    }
   </script>
 </body>
-</html>✅</div>
-            <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #065F46;">
-              処理完了しました!
-            </div>
-            <div style="font-size: 14px; color: #047857; margin-bottom: 25px; line-height: 1.7;">
-              結果はLINEトークで<br>確認してください
-            </div>
-            <button onclick="closeLiffWindow()" 
-                    style="width: 100%; 
-                           padding: 16px 32px; 
-                           background: linear-gradient(135deg, #06C755 0%, #05B04B 100%);
-                           color: white; 
-                           border: none; 
-                           border-radius: 12px; 
-                           font-size: 16px; 
-                           font-weight: bold;
-                           cursor: pointer;
-                           box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
-                           transition: all 0.2s ease;">
-              📱 LINEに戻る
-            </button>
-          </div>
-        `;
-      } else {
-        statusDiv.className = 'status status-success';
-        statusDiv.style.display = 'block';
-        statusDiv.innerHTML = `
-          <div style="text-align: center; padding: 20px;">
-            <div style="font-size: 48px; margin-bottom: 15px;">
+</html>
