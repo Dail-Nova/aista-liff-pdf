@@ -1295,12 +1295,12 @@
         debugLog('アップロード成功: ' + JSON.stringify(result));
         showProgress(100);
         
-        showStatus('✅ 処理中です。結果はLINEトークで確認してください', 'success');
+        showStatus('✅ 処理完了しました！', 'success');
         
+        // 処理完了後、すぐに「LINEに戻る」ボタンを表示
         setTimeout(() => {
-          debugLog('LINEトークへリダイレクト');
-          redirectToLine();
-        }, 2000);
+          showCloseButton();
+        }, 1000);
 
       } catch (error) {
         debugLog('❌ エラー: ' + error.message);
@@ -1363,7 +1363,94 @@
     }
 
     // ========================================
-    // ユーティリティ
+    // 「LINEに戻る」ボタン表示
+    // ========================================
+    function showCloseButton() {
+      debugLog('「LINEに戻る」ボタン表示');
+      
+      const statusDiv = document.getElementById('status');
+      if (!statusDiv) return;
+      
+      // LINEアプリ内かどうかで表示を変える
+      const isInLiffBrowser = liff.isInClient();
+      debugLog(`環境判定: isInClient=${isInLiffBrowser}`);
+      
+      if (isInLiffBrowser) {
+        // LINEアプリ内 → 「閉じる」ボタン
+        statusDiv.className = 'status status-success';
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = `
+          <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+            <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #065F46;">
+              処理完了しました！
+            </div>
+            <div style="font-size: 14px; color: #047857; margin-bottom: 25px; line-height: 1.7;">
+              結果はLINEトークで<br>確認してください
+            </div>
+            <button onclick="closeLiffWindow()" 
+                    style="width: 100%; 
+                           padding: 16px 32px; 
+                           background: linear-gradient(135deg, #06C755 0%, #05B04B 100%);
+                           color: white; 
+                           border: none; 
+                           border-radius: 12px; 
+                           font-size: 16px; 
+                           font-weight: bold;
+                           cursor: pointer;
+                           box-shadow: 0 4px 12px rgba(6, 199, 85, 0.3);
+                           transition: all 0.2s ease;">
+              📱 LINEに戻る
+            </button>
+          </div>
+        `;
+      } else {
+        // 外部ブラウザ → 案内メッセージのみ
+        statusDiv.className = 'status status-success';
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = `
+          <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+            <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #065F46;">
+              処理完了しました！
+            </div>
+            <div style="font-size: 14px; color: #047857; line-height: 1.7;">
+              LINEアプリを開いて<br>結果を確認してください
+            </div>
+          </div>
+        `;
+        
+        // ボタンを再度有効化
+        const uploadBtn = document.getElementById('uploadBtn');
+        const selectBtn = document.getElementById('selectBtn');
+        if (uploadBtn) uploadBtn.disabled = false;
+        if (selectBtn) selectBtn.disabled = false;
+      }
+    }
+
+    // ========================================
+    // LINEウィンドウを閉じる
+    // ========================================
+    function closeLiffWindow() {
+      debugLog('「LINEに戻る」ボタンがクリックされました');
+      
+      if (liff.isInClient()) {
+        debugLog('liff.closeWindow() 実行');
+        try {
+          liff.closeWindow();
+          debugLog('✅ closeWindow() 実行成功');
+        } catch (error) {
+          debugLog('❌ closeWindow() エラー: ' + error.message);
+          showStatus('画面左上の「×」ボタンで閉じてください', 'info');
+        }
+      } else {
+        debugLog('外部ブラウザのため closeWindow() はスキップ');
+        showStatus('LINEアプリを開いて結果を確認してください', 'info');
+      }
+    }
+
+    // ========================================
+    // リダイレクト処理（削除）
     // ========================================
     function showStatus(message, type = 'info') {
       const statusDiv = document.getElementById('status');
