@@ -1281,20 +1281,15 @@
       console.log('完了画面表示');
       showPage('page-complete');
       
-      const isInLiffBrowser = liff.isInClient();
       const btnCloseLiff = document.getElementById('btnCloseLiff');
-      
-      if (isInLiffBrowser) {
-        btnCloseLiff.style.display = 'flex';
-      } else {
-        btnCloseLiff.style.display = 'none';
-      }
+      btnCloseLiff.style.display = 'flex';
     }
 
     function closeLiffWindow() {
       console.log('LINEに戻る');
       
       if (liff.isInClient()) {
+        // LINEアプリ内: ウィンドウを閉じる
         try {
           liff.closeWindow();
           console.log('closeWindow() 実行成功');
@@ -1303,8 +1298,15 @@
           errorHandler.handle(ErrorType.CLOSE_WINDOW_FAILED, { error });
         }
       } else {
-        console.log('外部ブラウザのため closeWindow() はスキップ');
-        errorHandler.showToast('LINEアプリを開いて結果を確認してください', 'warning');
+        // ブラウザ: LINEアプリを開く
+        console.log('外部ブラウザ → LINEアプリを起動');
+        const lineAppUrl = 'https://line.me/R/';
+        window.location.href = lineAppUrl;
+        
+        // 2秒後にToastで案内
+        setTimeout(() => {
+          errorHandler.showToast('LINEアプリで結果を確認してください', 'success');
+        }, 2000);
       }
     }
   </script>
