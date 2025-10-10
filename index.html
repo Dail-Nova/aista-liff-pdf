@@ -417,6 +417,33 @@
     }
 
     /* ========================================
+       Progress Notice（10秒後表示）
+       ======================================== */
+    .progress-notice {
+      margin-top: 24px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .notice-text {
+      font-size: 14px;
+      color: #64748B;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========================================
        Page 5: Complete (Apple式デザイン)
        ======================================== */
     .complete-screen {
@@ -673,6 +700,17 @@
             <span class="dot"></span>
           </div>
           <p class="progress-text" id="progressText">変換中...</p>
+          
+          <!-- 10秒後に表示される通知 -->
+          <div class="progress-notice" id="progressNotice" style="display:none;">
+            <p class="notice-text">
+              処理に時間がかかっています<br><br>
+              結果はLINEで通知されます
+            </p>
+            <button class="btn btn-line" onclick="returnToLine()">
+              LINEに戻る
+            </button>
+          </div>
         </div>
       </div>
 
@@ -713,6 +751,8 @@
     let currentUserId = null;
     let currentDisplayName = null;
     let selectedFiles = [];
+    let uploadStartTime = null;
+    let progressNoticeTimer = null;
 
     // ========================================
     // エラータイプ定義
@@ -963,10 +1003,20 @@
         const selectBtn = document.getElementById('selectBtn');
         const uploadBtn = document.getElementById('uploadBtn');
         const progressContainer = document.getElementById('progressContainer');
+        const progressNotice = document.getElementById('progressNotice');
         
         if (selectBtn) selectBtn.disabled = false;
         if (uploadBtn) uploadBtn.disabled = false;
         if (progressContainer) progressContainer.classList.remove('active');
+        
+        // 通知を非表示にする
+        if (progressNotice) progressNotice.style.display = 'none';
+        
+        // タイマークリア
+        if (progressNoticeTimer) {
+          clearTimeout(progressNoticeTimer);
+          progressNoticeTimer = null;
+        }
       }
     }
 
@@ -1228,6 +1278,12 @@
       
       showProgress('ファイルを準備中...');
 
+      // タイマー開始（10秒後に通知表示）
+      uploadStartTime = Date.now();
+      progressNoticeTimer = setTimeout(() => {
+        showProgressNotice();
+      }, 10000); // 10秒
+
       try {
         const filesData = [];
         for (let i = 0; i < selectedFiles.length; i++) {
@@ -1301,6 +1357,9 @@
 
         console.log('アップロード成功:', result);
         
+        // 成功時: タイマーをクリア
+        clearTimeout(progressNoticeTimer);
+        
         showProgress('完了');
         
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1309,6 +1368,9 @@
 
       } catch (error) {
         console.error('エラー:', error);
+        
+        // エラー時: タイマーをクリア
+        clearTimeout(progressNoticeTimer);
         
         if (error instanceof TypeError && error.message.includes('fetch')) {
           errorHandler.handle(ErrorType.NETWORK_ERROR, { error });
@@ -1326,6 +1388,49 @@
       if (progressText) progressText.textContent = message || '変換中...';
       
       console.log(`Progress: ${message}`);
+    }
+
+    // ========================================
+    // 10秒後の通知表示
+    // ========================================
+    function showProgressNotice() {
+      const notice = document.getElementById('progressNotice');
+      if (notice) {
+        notice.style.display = 'block';
+        console.log('進捗通知を表示（10秒経過）');
+      }
+    }
+
+    // ========================================
+    // 処理中にLINEに戻る
+    // ========================================
+    function returnToLine() {
+      console.log('処理中にLINEに戻る');
+      
+      // タイマークリア
+      if (progressNoticeTimer) {
+        clearTimeout(progressNoticeTimer);
+      }
+      
+      const btn = event.target;
+      btn.classList.add('shrink-out');
+      
+      setTimeout(() => {
+        if (liff.isInClient()) {
+          try {
+            liff.closeWindow();
+            console.log('closeWindow() 実行成功');
+          } catch (error) {
+            console.error('closeWindow() エラー:', error);
+            btn.classList.remove('shrink-out');
+            errorHandler.handle(ErrorType.CLOSE_WINDOW_FAILED, { error });
+          }
+        } else {
+          console.log('外部ブラウザ → LINEアプリを起動');
+          const lineAppUrl = 'https://line.me/R/';
+          window.location.href = lineAppUrl;
+        }
+      }, 300);
     }
 
     function fileToBase64(file) {
