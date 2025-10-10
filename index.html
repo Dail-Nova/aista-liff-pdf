@@ -343,20 +343,7 @@
       color: #64748B;
     }
 
-    .status-message {
-      text-align: center;
-      padding: 12px;
-      background: #E0EAFF;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #0C4A6E;
-      margin-top: 12px;
-      display: none;
-    }
 
-    .status-message.active {
-      display: block;
-    }
 
     /* ========================================
        Page 5: Complete
@@ -611,8 +598,6 @@
           </div>
           <p class="progress-text" id="progressText">変換中...</p>
         </div>
-
-        <div class="status-message" id="statusMessage"></div>
       </div>
 
       <!-- Page 5: Complete -->
@@ -902,12 +887,10 @@
         const selectBtn = document.getElementById('selectBtn');
         const uploadBtn = document.getElementById('uploadBtn');
         const progressContainer = document.getElementById('progressContainer');
-        const statusMessage = document.getElementById('statusMessage');
         
         if (selectBtn) selectBtn.disabled = false;
         if (uploadBtn) uploadBtn.disabled = false;
         if (progressContainer) progressContainer.classList.remove('active');
-        if (statusMessage) statusMessage.classList.remove('active');
       }
     }
 
@@ -1146,9 +1129,7 @@
       document.getElementById('uploadBtn').disabled = true;
       
       const progressContainer = document.getElementById('progressContainer');
-      const statusMessage = document.getElementById('statusMessage');
       progressContainer.classList.add('active');
-      statusMessage.classList.add('active');
       
       showProgress('ファイルを準備中...');
 
@@ -1246,10 +1227,8 @@
 
     function showProgress(message) {
       const progressText = document.getElementById('progressText');
-      const statusMessage = document.getElementById('statusMessage');
       
       if (progressText) progressText.textContent = message || '変換中...';
-      if (statusMessage) statusMessage.textContent = message;
       
       console.log(`Progress: ${message}`);
     }
